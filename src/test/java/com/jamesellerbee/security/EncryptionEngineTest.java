@@ -1,5 +1,6 @@
 package com.jamesellerbee.security;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class EncryptionEngineTest {
 
-    @BeforeEach
+    @AfterEach
     void clean() {
         File file = new File("test.key");
         if(file.exists())
@@ -22,7 +23,7 @@ class EncryptionEngineTest {
      */
     @Test
     void testCreateKeyFile() {
-        // Given that the key file does not exist to begin with
+        // Given that the key file does not already exist
 
         // When the encryption object is created
         EncryptionEngine encryption = new EncryptionEngine("test.key");
@@ -56,7 +57,7 @@ class EncryptionEngineTest {
     @Test
     void testEncryptionAndDecryption()
     {
-        // Given an orignal string to encrypt
+        // Given an original string to encrypt
         String originalContent = "foobar";
         // Given an encryption engine
         EncryptionEngine encryptionEngine = new EncryptionEngine("test.key");
@@ -66,5 +67,7 @@ class EncryptionEngineTest {
         String decryptedContent = encryptionEngine.decrypt("foobar.enc");
         // We except the decrypted content is the same as the original content
         assertEquals(originalContent, decryptedContent);
+
+        new File("foobar.enc").delete();
     }
 }
