@@ -2,8 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'come.jamesellerbee'
-version '0.0.0.0-SNAPSHOT'
+group 'com.jamesellerbee'
 
 repositories {
     mavenCentral()
