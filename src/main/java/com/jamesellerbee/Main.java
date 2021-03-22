@@ -32,12 +32,12 @@ public class Main
 
     public void storeContent(String content, String path)
     {
-        encryptionEngine.encrypt(content, PATH_PREFIX + path);
+        encryptionEngine.encrypt(content, PATH_PREFIX + path + FILE_EXTENSION);
     }
 
     public String retrieveContent(String path)
     {
-        return encryptionEngine.decrypt(path);
+        return encryptionEngine.decrypt(PATH_PREFIX + path + FILE_EXTENSION);
     }
 
     public String processCommand(String command, String[] args)
@@ -46,10 +46,12 @@ public class Main
         switch (command)
         {
             case "store":
-                System.out.print("Enter identifier (e.g. username): ");
+                System.out.print("Enter name: ");
                 String path = scanner.nextLine();
-                System.out.print("Enter content (e.g. password): ");
-                String content = scanner.nextLine();
+                System.out.print("Enter user: ");
+                String content = "user: " + scanner.nextLine();
+                System.out.print("Enter pass: ");
+                content += "pass: " + scanner.nextLine();
                 storeContent(content, PATH_PREFIX + path + FILE_EXTENSION);
                 output = "Done.";
                 break;
@@ -69,7 +71,10 @@ public class Main
     public static void main(String[] args)
     {
         Main main = new Main();
-        System.out.println(main.processCommand(args[0], args));
+        if(args.length > 0)
+        {
+          System.out.println(main.processCommand(args[0], args));
+        }
     }
 
 }
