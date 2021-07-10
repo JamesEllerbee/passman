@@ -1,8 +1,17 @@
 package com.jamesellerbee;
 
+import com.jamesellerbee.interfaces.IConsoleHandler;
+import com.jamesellerbee.interfaces.IEncryptionEngine;
+import com.jamesellerbee.interfaces.IPropertyProvider;
 import com.jamesellerbee.security.EncryptionEngine;
-import com.jamesellerbee.utilities.ConsoleException;
-import com.jamesellerbee.utilities.ConsoleHandler;
+import com.jamesellerbee.utilities.console.ConsoleException;
+import com.jamesellerbee.utilities.console.ConsoleHandler;
+import com.jamesellerbee.utilities.properties.PropertyProvider;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,24 +21,32 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Main
+public class Main extends Application
 {
   private static final String KEY_FILE_NAME = "private.key";
   private static final String CONTENT_FILE_EXTENSION = ".enc";
-  private static final String PATH_PREFIX = "C:\\Users\\ellerbeej\\.directory\\"; // TODO: Future; make this dynamic.
-  private ConsoleHandler consoleHandler;
-  private EncryptionEngine encryptionEngine;
+  private static final String DEFAULT_PATH = System.getProperty("user.dir");
+  private static final String SYSTEM_FILE_SEPARATOR = System.getProperty("file.separator");
+  private static final String TITLE = "Passman";
+
+  private final String path;
+  private IPropertyProvider propertyProvider;
+  private IConsoleHandler consoleHandler;
+  private IEncryptionEngine encryptionEngine;
 
   public Main()
   {
+    propertyProvider = new PropertyProvider();
+    path = propertyProvider.get("Path", DEFAULT_PATH);
+
     initializeDirectory();
     consoleHandler = new ConsoleHandler();
-    encryptionEngine = new EncryptionEngine(PATH_PREFIX + KEY_FILE_NAME);
+    encryptionEngine = new EncryptionEngine(path + SYSTEM_FILE_SEPARATOR + KEY_FILE_NAME);
   }
 
   private void initializeDirectory()
   {
-    File identifiersPath = new File(PATH_PREFIX);
+    File identifiersPath = new File(path);
     if (identifiersPath.mkdir())
     {
       System.out.println("Directory created.");
@@ -67,7 +84,7 @@ public class Main
   private String remove(String arg)
   {
     String output = "";
-    File toRemove = new File(PATH_PREFIX + arg + CONTENT_FILE_EXTENSION);
+    File toRemove = new File(path + arg + CONTENT_FILE_EXTENSION);
     if(toRemove.exists())
     {
       if(toRemove.delete())
@@ -114,12 +131,12 @@ public class Main
 
   public void storeContent(String content, String path)
   {
-    encryptionEngine.encrypt(content, PATH_PREFIX + path + CONTENT_FILE_EXTENSION);
+    encryptionEngine.encrypt(content, this.path + path + CONTENT_FILE_EXTENSION);
   }
 
   public String retrieve(String path)
   {
-    return encryptionEngine.decrypt(PATH_PREFIX + path + CONTENT_FILE_EXTENSION);
+    return encryptionEngine.decrypt(this.path + path + CONTENT_FILE_EXTENSION);
   }
 
   public String retrieveAll()
@@ -127,7 +144,7 @@ public class Main
     String output = "";
     try
     {
-      List<File> files = Files.list(Paths.get(PATH_PREFIX))
+      List<File> files = Files.list(Paths.get(path))
           .map(Path::toFile)
           .filter(file -> !file.getName().contains(".key"))
           .collect(Collectors.toList());
@@ -151,12 +168,26 @@ public class Main
     return output;
   }
 
+  public void start(Stage primaryStage) throws Exception
+  {
+    primaryStage.setTitle(TITLE);
+
+    Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("main.fxml"));
+
+    primaryStage.setScene(new Scene(root, 300, 250));
+    primaryStage.show();
+  }
+
   public static void main(String[] args)
   {
-    Main main = new Main();
     if (args.length > 0)
     {
+      Main main = new Main();
       System.out.println(main.processCommand(args[0], args));
+    }
+    else
+    {
+      launch(Main.class, args);
     }
   }
 }

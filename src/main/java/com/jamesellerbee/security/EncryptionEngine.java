@@ -1,6 +1,8 @@
 package com.jamesellerbee.security;
 
-import com.jamesellerbee.logging.Logger;
+import com.jamesellerbee.interfaces.IEncryptionEngine;
+import com.jamesellerbee.interfaces.ILogger;
+import com.jamesellerbee.utilities.logging.SimpleLogger;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
@@ -13,10 +15,10 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Provides encryption and decryption methods.
  */
-public class EncryptionEngine
+public class EncryptionEngine implements IEncryptionEngine
 {
 
-    private final Logger logger = new Logger(getClass().getName());
+    private final ILogger logger = new SimpleLogger(getClass().getName());
 
     private final static int KEY_LENGTH = 256;
     private final static int LENGTH = 32;
@@ -93,6 +95,7 @@ public class EncryptionEngine
         } catch (IOException e)
         {
             logger.error("There was a problem writing the key file.");
+            logger.debug("Exception: " + e.getMessage());
         }
     }
 
