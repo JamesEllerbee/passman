@@ -10,6 +10,6 @@ public class ConsoleException extends Exception
    */
   public ConsoleException()
   {
-    super("Cannot created a console.");
+    super("Cannot create a console.");
   }
 }

@@ -1,7 +1,10 @@
 package com.jamesellerbee.security;
 
 import com.jamesellerbee.interfaces.IEncryptionEngine;
+import com.jamesellerbee.interfaces.IInjector;
 import com.jamesellerbee.interfaces.ILogger;
+import com.jamesellerbee.interfaces.IPropertyProvider;
+import com.jamesellerbee.utilities.constants.SystemConstants;
 import com.jamesellerbee.utilities.logging.SimpleLogger;
 
 import javax.crypto.*;
@@ -17,6 +20,8 @@ import java.security.NoSuchAlgorithmException;
  */
 public class EncryptionEngine implements IEncryptionEngine
 {
+    private static final String KEY_FILE_NAME = "private.key";
+    private static final String CONTENT_FILE_EXTENSION = ".enc";
 
     private final ILogger logger = new SimpleLogger(getClass().getName());
 
@@ -29,21 +34,26 @@ public class EncryptionEngine implements IEncryptionEngine
     private SecretKey secretKey;
     private Cipher cipher;
 
+
     /**
-     * Constructs the encryption engine and generates or processes the key file.
-     *
-     * @param secretKeyPath Path to the file containing the key.
+     * Constructs the encryption engine and generates or processes the key file with default name.
      */
-    public EncryptionEngine(String secretKeyPath)
+    public EncryptionEngine()
     {
-        processSecretKey(secretKeyPath);
-        try
-        {
-            cipher = Cipher.getInstance(TRANSFORMATION);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e)
-        {
-            logger.error("There was a problem generating the encryption engine.");
-        }
+        this(KEY_FILE_NAME);
+    }
+
+    /**
+     * Constructs the encryption engine and generates or processes the key file
+     * @param fileName Key file name.
+     */
+    public EncryptionEngine(String fileName)
+    {
+        // TODO: make this configurable
+        String secretKeyPath = SystemConstants.DEFAULT_PATH;
+
+        processSecretKey(secretKeyPath + SystemConstants.SYSTEM_FILE_SEPARATOR + fileName);
+        createCipher();
     }
 
     public SecretKey getSecretKey()
@@ -64,11 +74,13 @@ public class EncryptionEngine implements IEncryptionEngine
                 secretKey = keyGenerator.generateKey();
                 secretKeyBytes = secretKey.getEncoded();
                 writeKeyFile(secretKeyFile, secretKeyBytes);
-            } catch (NoSuchAlgorithmException e)
+            }
+            catch (NoSuchAlgorithmException e)
             {
                 logger.error("There was a problem creating the key generator.");
             }
-        } else
+        }
+        else
         {
             readKeyFile(secretKeyFile);
         }
@@ -81,7 +93,8 @@ public class EncryptionEngine implements IEncryptionEngine
             byte[] secretKeyBytes = new byte[LENGTH];
             fileInputStream.read(secretKeyBytes);
             secretKey = new SecretKeySpec(secretKeyBytes, 0, secretKeyBytes.length, ALGORITHM);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             logger.error("Could not read from key file.");
         }
@@ -92,7 +105,8 @@ public class EncryptionEngine implements IEncryptionEngine
         try (FileOutputStream fileOutputStream = new FileOutputStream(secretKeyFile))
         {
             fileOutputStream.write(secretKeyBytes);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             logger.error("There was a problem writing the key file.");
             logger.debug("Exception: " + e.getMessage());
@@ -117,7 +131,8 @@ public class EncryptionEngine implements IEncryptionEngine
         {
             fileOutputStream.write(iv);
             cipherOutputStream.write(content.getBytes());
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             logger.error("There was an issue with the path.");
         }
@@ -153,7 +168,8 @@ public class EncryptionEngine implements IEncryptionEngine
                 }
                 content = stringBuilder.toString();
             }
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             logger.error("There was an issue with the path.");
         }
@@ -161,12 +177,25 @@ public class EncryptionEngine implements IEncryptionEngine
         return content;
     }
 
+    private void createCipher()
+    {
+        try
+        {
+            cipher = Cipher.getInstance(TRANSFORMATION);
+        }
+        catch (NoSuchAlgorithmException | NoSuchPaddingException e)
+        {
+            logger.error("There was a problem generating the encryption engine.");
+        }
+    }
+
     private void initializeCipherForEncryption()
     {
         try
         {
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        } catch (InvalidKeyException e)
+        }
+        catch (InvalidKeyException e)
         {
             logger.error("There was a problem initializing the cipher for encryption.");
         }

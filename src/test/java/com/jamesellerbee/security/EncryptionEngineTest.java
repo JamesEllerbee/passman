@@ -1,28 +1,42 @@
 package com.jamesellerbee.security;
 
+import com.jamesellerbee.interfaces.IInjector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class EncryptionEngineTest {
+@DisplayName("An EncryptionEngine should...")
+class EncryptionEngineTest
+{
+
+    @BeforeEach
+    void setup()
+    {
+
+    }
 
     @AfterEach
-    void clean() {
+    void clean()
+    {
         File file = new File("test.key");
-        if(file.exists())
+        if (file.exists())
         {
             file.delete();
         }
     }
+
     /**
      * Verifies that the keyfile gets generated.
      */
     @Test
-    void testCreateKeyFile() {
+    @DisplayName("generate a key file.")
+    void testCreateKeyFile()
+    {
         // Given that the key file does not already exist
 
         // When the encryption object is created
@@ -30,7 +44,7 @@ class EncryptionEngineTest {
         // Then the test file exists.
         File file = new File("test.key");
         assertTrue(file.exists());
-        // Then clean up
+        // Finally, clean up
         file.delete();
     }
 
@@ -38,6 +52,7 @@ class EncryptionEngineTest {
      * Verifies that when a key file exists, encryption object can use it
      */
     @Test
+    @DisplayName("read and use existing key file.")
     void testReadExistingKeyFile()
     {
         // Create an encryption object to generate the key file
@@ -51,10 +66,12 @@ class EncryptionEngineTest {
 
         assertEquals(encryption.getSecretKey(), encryption1.getSecretKey());
 
+        // Finally, clean up
         file.delete();
     }
 
     @Test
+    @DisplayName("encrypt and decrypt using key file")
     void testEncryptionAndDecryption()
     {
         // Given an original string to encrypt
@@ -68,6 +85,7 @@ class EncryptionEngineTest {
         // We except the decrypted content is the same as the original content
         assertEquals(originalContent, decryptedContent);
 
+        // Finally, clean up
         new File("foobar.enc").delete();
     }
 }

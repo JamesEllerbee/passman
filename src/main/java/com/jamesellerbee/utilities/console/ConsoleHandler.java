@@ -21,6 +21,7 @@ public class ConsoleHandler implements IConsoleHandler
 
   public String readPassword() throws ConsoleException
   {
+    // Try to get the console from the system.
     Console console = System.console();
 
     if(console == null)

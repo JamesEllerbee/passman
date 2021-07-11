@@ -31,7 +31,7 @@ public interface IInjector
      * Resolve an object from the injector.
      * @param type The type to resolve.
      * @param <T> The type of the object.
-     * @return The instance of the object relating of the type specified.
+     * @return The instance of the object relating of the type specified, null if it does not exist.
      */
     <T> T resolve(Class<T> type);
 
@@ -40,7 +40,7 @@ public interface IInjector
      * @param type The type to resolve.
      * @param key The key the object is mapped to.
      * @param <T> The type of the object.
-     * @return The instance of the object mapped to the keep of the type specified.
+     * @return The instance of the object mapped to the keep of the type specified, null if it does not exist.
      */
     <T> T resolve(Class<T> type, Object key);
 }

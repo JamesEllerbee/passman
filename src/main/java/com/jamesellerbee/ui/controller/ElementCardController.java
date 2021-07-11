@@ -1,5 +1,6 @@
 package com.jamesellerbee.ui.controller;
 
+import com.jamesellerbee.interfaces.IInjector;
 import com.jamesellerbee.interfaces.ILogger;
 import com.jamesellerbee.ui.models.LoginInfo;
 import com.jamesellerbee.utilities.logging.SimpleLogger;
@@ -41,12 +42,31 @@ public class ElementCardController
         this.password = password;
     }
 
+    /**
+     * Sets fields using login info.
+     *
+     * @param loginInfo The login info.
+     */
+    public void setLoginInfo(LoginInfo loginInfo)
+    {
+        setIdentifier(loginInfo.getIdentifier());
+        setUsername(loginInfo.getUsername());
+        setPassword(loginInfo.getPassword());
+    }
+
     public void setMainController(MainController mainController)
     {
         this.mainController = mainController;
     }
 
-    public static Parent createNewCard(MainController mainController, LoginInfo loginInfo)
+    /**
+     * Creates a new login info card.
+     *
+     * @param dependencyInjector Dependency injector.
+     * @param loginInfo Login info.
+     * @return The parent node of the info card.
+     */
+    public static Parent createNewCard(IInjector dependencyInjector, LoginInfo loginInfo)
     {
         FXMLLoader elementCardFxmlLoader = new FXMLLoader(ElementCardController.class.getClassLoader().getResource(
                 "loginCard.fxml"));
@@ -54,11 +74,12 @@ public class ElementCardController
         Parent elementCard = null;
         try
         {
+            MainController mainController = dependencyInjector.resolve(MainController.class);
+
             elementCard = elementCardFxmlLoader.load();
             ElementCardController elementCardController = elementCardFxmlLoader.getController();
-            elementCardController.setIdentifier(loginInfo.getIdentifier());
-            elementCardController.setUsername(loginInfo.getUsername());
-            elementCardController.setPassword(loginInfo.getPassword());
+
+            elementCardController.setLoginInfo(loginInfo);
             elementCardController.setMainController(mainController);
 
         }

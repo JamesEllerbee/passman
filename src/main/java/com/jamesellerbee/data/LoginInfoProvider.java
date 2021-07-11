@@ -1,6 +1,7 @@
 package com.jamesellerbee.data;
 
 import com.jamesellerbee.interfaces.IEncryptionEngine;
+import com.jamesellerbee.interfaces.IInjector;
 import com.jamesellerbee.interfaces.ILogger;
 import com.jamesellerbee.interfaces.ILoginInfoProvider;
 import com.jamesellerbee.ui.models.LoginInfo;
@@ -26,17 +27,24 @@ public class LoginInfoProvider implements ILoginInfoProvider
 {
     private final ILogger logger = new SimpleLogger(getClass().getName());
 
-    private final IEncryptionEngine encryptionEngine;
+    private final IInjector dependencyInjector;
+    private IEncryptionEngine encryptionEngine;
 
-    public LoginInfoProvider(IEncryptionEngine encryptionEngine)
+    public LoginInfoProvider(IInjector dependencyInjector)
     {
-        this.encryptionEngine = encryptionEngine;
+        if (dependencyInjector == null)
+        {
+            logger.error("");
+            throw new IllegalArgumentException();
+        }
+        this.dependencyInjector = dependencyInjector;
     }
 
     @Override
     public void createNewLoginInfo()
     {
-        FXMLLoader loginInfoPromptFxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("loginInfoPrompt.fxml"));
+        FXMLLoader loginInfoPromptFxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource(
+                "loginInfoPrompt.fxml"));
 
         Parent root;
         try
@@ -59,27 +67,35 @@ public class LoginInfoProvider implements ILoginInfoProvider
     public List<LoginInfo> getAllLoginInfo(String path)
     {
         List<LoginInfo> loginInfos = new ArrayList<>();
-        try
-        {
-            List<File> files = Files.list(Paths.get(path))
-                    .map(Path::toFile)
-                    .filter(file -> !file.getName().contains(".key"))
-                    .collect(Collectors.toList());
 
-            files.forEach(file ->
+        IEncryptionEngine encryptionEngine = getEncryptionEngine();
+        if (encryptionEngine != null)
+        {
+            try
             {
-                String[] tokens = file.getName().replaceAll(".enc", "").split("_");
-                String id = tokens[0];
-                String username = tokens[1];
-                String password = encryptionEngine.decrypt(file.getAbsolutePath());
+                List<File> files = Files.list(Paths.get(path))
+                        .map(Path::toFile)
+                        .filter(file -> !file.getName().contains(".key"))
+                        .collect(Collectors.toList());
 
-                loginInfos.add(new LoginInfo(id, username, password));
-            });
+                files.forEach(file ->
+                {
+                    String[] tokens = file.getName().replaceAll(".enc", "").split("_");
+                    String id = tokens[0];
+                    String username = tokens[1];
+                    String password = encryptionEngine.decrypt(file.getAbsolutePath());
 
+                    loginInfos.add(new LoginInfo(id, username, password));
+                });
+            }
+            catch (IOException e)
+            {
+                System.err.println("Error while reading the directory.");
+            }
         }
-        catch (IOException e)
+        else
         {
-            System.err.println("Error while reading the directory.");
+            logger.error("Missing encryption engine dependency.");
         }
 
         return loginInfos;
@@ -89,29 +105,49 @@ public class LoginInfoProvider implements ILoginInfoProvider
     public String retrieveAllAsString(String path)
     {
         String output = "";
-        try
+
+        IEncryptionEngine encryptionEngine = getEncryptionEngine();
+        if (encryptionEngine != null)
         {
-            List<File> files = Files.list(Paths.get(path))
-                    .map(Path::toFile)
-                    .filter(file -> !file.getName().contains(".key"))
-                    .collect(Collectors.toList());
-
-            StringBuilder stringBuilder = new StringBuilder();
-
-            if (files.isEmpty())
+            try
             {
-                stringBuilder.append("Nothing to list. Try storing content.");
+                List<File> files = Files.list(Paths.get(path))
+                        .map(Path::toFile)
+                        .filter(file -> !file.getName().contains(".key"))
+                        .collect(Collectors.toList());
+
+                StringBuilder stringBuilder = new StringBuilder();
+
+                if (files.isEmpty())
+                {
+                    stringBuilder.append("Nothing to list. Try storing content.");
+                }
+
+                files.forEach(file -> stringBuilder.append(file.getName().replaceAll(".enc", "\t").replaceAll("_", " "
+                )).append(encryptionEngine.decrypt(file.getAbsolutePath())).append("\n"));
+
+                output = stringBuilder.toString();
             }
-
-            files.forEach(file -> stringBuilder.append(file.getName().replaceAll(".enc", "\t").replaceAll("_", " ")).append(encryptionEngine.decrypt(file.getAbsolutePath())).append("\n"));
-
-            output = stringBuilder.toString();
+            catch (IOException e)
+            {
+                logger.error("Error while reading the directory.");
+            }
         }
-        catch (IOException e)
+        else
         {
-            logger.error("Error while reading the directory.");
+            logger.error("Missing encryption engine dependency.");
         }
 
         return output;
+    }
+
+    private IEncryptionEngine getEncryptionEngine()
+    {
+        if (encryptionEngine == null)
+        {
+            encryptionEngine = dependencyInjector.resolve(IEncryptionEngine.class);
+        }
+
+        return encryptionEngine;
     }
 }
