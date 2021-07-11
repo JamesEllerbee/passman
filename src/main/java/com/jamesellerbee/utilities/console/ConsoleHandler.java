@@ -22,6 +22,7 @@ public class ConsoleHandler implements IConsoleHandler
   public String readPassword() throws ConsoleException
   {
     Console console = System.console();
+
     if(console == null)
     {
       throw new ConsoleException();

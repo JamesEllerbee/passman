@@ -2,15 +2,19 @@ package com.jamesellerbee;
 
 import com.jamesellerbee.interfaces.IConsoleHandler;
 import com.jamesellerbee.interfaces.IEncryptionEngine;
+import com.jamesellerbee.interfaces.ILogger;
 import com.jamesellerbee.interfaces.IPropertyProvider;
+import com.jamesellerbee.models.LoginInfo;
 import com.jamesellerbee.security.EncryptionEngine;
 import com.jamesellerbee.ui.Controller.ElementCardController;
 import com.jamesellerbee.ui.Controller.MainController;
 import com.jamesellerbee.utilities.console.ConsoleException;
 import com.jamesellerbee.utilities.console.ConsoleHandler;
+import com.jamesellerbee.utilities.logging.SimpleLogger;
 import com.jamesellerbee.utilities.properties.PropertyProvider;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -20,7 +24,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLOutput;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Main extends Application
@@ -29,7 +36,10 @@ public class Main extends Application
     private static final String CONTENT_FILE_EXTENSION = ".enc";
     private static final String DEFAULT_PATH = System.getProperty("user.dir");
     private static final String SYSTEM_FILE_SEPARATOR = System.getProperty("file.separator");
+    private static final String SYSTEM_LINE_SEPARATOR = System.lineSeparator();
     private static final String TITLE = "Passman";
+
+    private final ILogger logger = new SimpleLogger(getClass().getName());
 
     private final String path;
     private IPropertyProvider propertyProvider;
@@ -112,25 +122,41 @@ public class Main extends Application
         String name = consoleHandler.readLine();
 
         System.out.print("Enter user: ");
-        String content = "user: " + consoleHandler.readLine() + " ";
+        name += "_" + consoleHandler.readLine();
+        String content = "";
         try
         {
             System.out.print("Enter pass: ");
-            content += "pass: " + consoleHandler.readPassword();
-            storeContent(content, name);
-
-            output = "Done.";
+            content += consoleHandler.readPassword();
         } catch (ConsoleException e)
         {
-            System.err.println("Cannot securely read password.");
+            logger.error("Cannot securely read password.");
+            System.out.print("Do you want to input your password in plain text? (y/n): ");
+            Scanner scanner = new Scanner(System.in);
+            String response = scanner.nextLine();
+            if(response.equalsIgnoreCase("y"))
+            {
+                System.out.print("password: ");
+                content += scanner.nextLine();
+            }
+            else
+            {
+                content += "NOT SET";
+            }
+
+        }
+        finally
+        {
+            storeContent(content, name);
+            output = "Done.";
         }
 
         return output;
     }
 
-    public void storeContent(String content, String path)
+    public void storeContent(String content, String fileName)
     {
-        encryptionEngine.encrypt(content, this.path + path + CONTENT_FILE_EXTENSION);
+        encryptionEngine.encrypt(content, this.path + SYSTEM_FILE_SEPARATOR + fileName + CONTENT_FILE_EXTENSION);
     }
 
     public String retrieve(String path)
@@ -155,15 +181,44 @@ public class Main extends Application
                 stringBuilder.append("Nothing to list. Try storing content.");
             }
 
-            files.forEach(file -> stringBuilder.append(file.getName().replaceAll(".enc", "\t")).append(encryptionEngine.decrypt(file.getAbsolutePath())).append("\n"));
+            files.forEach(file -> stringBuilder.append(file.getName().replaceAll(".enc", "\t").replaceAll("_", " ")).append(encryptionEngine.decrypt(file.getAbsolutePath())).append("\n"));
 
             output = stringBuilder.toString();
+        } catch (IOException e)
+        {
+            logger.error("Error while reading the directory.");
+        }
+
+        return output;
+    }
+
+    List<LoginInfo> getAllLoginInfo()
+    {
+        List<LoginInfo> loginInfos = new ArrayList<>();
+        try
+        {
+            List<File> files = Files.list(Paths.get(path))
+                    .map(Path::toFile)
+                    .filter(file -> !file.getName().contains(".key"))
+                    .collect(Collectors.toList());
+
+//            files.forEach(file -> stringBuilder.append(file.getName().replaceAll(".enc", "\t")).append(encryptionEngine.decrypt(file.getAbsolutePath())).append("\n"));
+            files.forEach(file ->
+            {
+                String[] tokens = file.getName().replaceAll(".enc", "").split("_");
+                String id = tokens[0];
+                String username = tokens[1];
+                String password = encryptionEngine.decrypt(file.getAbsolutePath());
+
+                loginInfos.add(new LoginInfo(id, username , password));
+            });
+
         } catch (IOException e)
         {
             System.err.println("Error while reading the directory.");
         }
 
-        return output;
+        return loginInfos;
     }
 
     public void start(Stage primaryStage) throws Exception
@@ -175,14 +230,11 @@ public class Main extends Application
         Parent root = mainFxmlLoader.load();
         MainController mainController = mainFxmlLoader.getController();
 
-        // element card fragment test
-        FXMLLoader elementCardFxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("elementCard.fxml"));
-        Parent testElementCard = elementCardFxmlLoader.load();
-        ElementCardController elementCardController = elementCardFxmlLoader.getController();
+        List<LoginInfo> loginInfos = getAllLoginInfo();
 
-        mainController.addContent(testElementCard);
+        loginInfos.forEach(loginInfo -> mainController.addContent(ElementCardController.createNewCard(loginInfo)));
 
-        primaryStage.setScene(new Scene(root, 300, 250));
+        primaryStage.setScene(new Scene(root, 600, 600));
         primaryStage.show();
     }
 
