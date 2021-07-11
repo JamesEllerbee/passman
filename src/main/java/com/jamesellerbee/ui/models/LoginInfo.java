@@ -1,4 +1,4 @@
-package com.jamesellerbee.models;
+package com.jamesellerbee.ui.models;
 
 public class LoginInfo
 {

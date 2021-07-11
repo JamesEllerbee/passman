@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jamesellerbee.ui.Controller.MainController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jamesellerbee.ui.controller.MainController">
    <children>
       <SplitPane dividerPositions="0.3" pickOnBounds="false" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
@@ -20,7 +20,17 @@
                   </ScrollPane>
                </children>
             </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+               <children>
+                  <Label fx:id="selectedIdentifier" layoutX="162.0" layoutY="14.0" text="Selected Identifer" visible="false" />
+                  <Label fx:id="usernameLabel" layoutX="14.0" layoutY="44.0" text="Username" visible="false" />
+                  <Label fx:id="selectedUsername" layoutX="27.0" layoutY="72.0" text="Selected Username" visible="false" />
+                  <Label fx:id="passwordLabel" layoutX="16.0" layoutY="100.0" text="Password" visible="false" />
+                  <Label fx:id="selectedPassword" layoutX="27.0" layoutY="130.0" text="************" visible="false" />
+                  <Button alignment="TOP_LEFT" layoutX="8.0" layoutY="10.0" mnemonicParsing="false" text="Add New" textAlignment="CENTER" />
+                  <Button fx:id="closeButton" alignment="TOP_RIGHT" contentDisplay="CENTER" disable="true" layoutX="357.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onCloseMouseClicked" text="Close" textAlignment="CENTER" visible="false" />
+                  <Button fx:id="toggleViewPassword" disable="true" layoutX="74.0" layoutY="96.0" mnemonicParsing="false" onMouseClicked="#OnViewToggleMouseClicked" text="View" visible="false" />
+               </children></AnchorPane>
         </items>
       </SplitPane>
    </children>

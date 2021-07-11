@@ -1,34 +1,24 @@
 package com.jamesellerbee;
 
-import com.jamesellerbee.interfaces.IConsoleHandler;
-import com.jamesellerbee.interfaces.IEncryptionEngine;
-import com.jamesellerbee.interfaces.ILogger;
-import com.jamesellerbee.interfaces.IPropertyProvider;
-import com.jamesellerbee.models.LoginInfo;
+import com.jamesellerbee.data.LoginInfoProvider;
+import com.jamesellerbee.interfaces.*;
+import com.jamesellerbee.ui.models.LoginInfo;
 import com.jamesellerbee.security.EncryptionEngine;
-import com.jamesellerbee.ui.Controller.ElementCardController;
-import com.jamesellerbee.ui.Controller.MainController;
+import com.jamesellerbee.ui.controller.ElementCardController;
+import com.jamesellerbee.ui.controller.MainController;
 import com.jamesellerbee.utilities.console.ConsoleException;
 import com.jamesellerbee.utilities.console.ConsoleHandler;
 import com.jamesellerbee.utilities.logging.SimpleLogger;
 import com.jamesellerbee.utilities.properties.PropertyProvider;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.SQLOutput;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Main extends Application
 {
@@ -42,9 +32,10 @@ public class Main extends Application
     private final ILogger logger = new SimpleLogger(getClass().getName());
 
     private final String path;
-    private IPropertyProvider propertyProvider;
-    private IConsoleHandler consoleHandler;
-    private IEncryptionEngine encryptionEngine;
+    private final IPropertyProvider propertyProvider;
+    private final IConsoleHandler consoleHandler;
+    private final IEncryptionEngine encryptionEngine;
+    private final ILoginInfoProvider loginInfoProvider;
 
     public Main()
     {
@@ -54,6 +45,7 @@ public class Main extends Application
         initializeDirectory();
         consoleHandler = new ConsoleHandler();
         encryptionEngine = new EncryptionEngine(path + SYSTEM_FILE_SEPARATOR + KEY_FILE_NAME);
+        loginInfoProvider = new LoginInfoProvider(encryptionEngine);
     }
 
     private void initializeDirectory()
@@ -78,7 +70,7 @@ public class Main extends Application
                 break;
             case "ls":
             case "list":
-                output = retrieveAll();
+                output = loginInfoProvider.retrieveAllAsString(path);
                 break;
             case "rm":
                 output = remove(args[1]);
@@ -116,7 +108,7 @@ public class Main extends Application
 
     private String store()
     {
-        String output = "";
+        String output;
 
         System.out.print("Enter id: ");
         String name = consoleHandler.readLine();
@@ -164,63 +156,6 @@ public class Main extends Application
         return encryptionEngine.decrypt(this.path + path + CONTENT_FILE_EXTENSION);
     }
 
-    public String retrieveAll()
-    {
-        String output = "";
-        try
-        {
-            List<File> files = Files.list(Paths.get(path))
-                    .map(Path::toFile)
-                    .filter(file -> !file.getName().contains(".key"))
-                    .collect(Collectors.toList());
-
-            StringBuilder stringBuilder = new StringBuilder();
-
-            if (files.isEmpty())
-            {
-                stringBuilder.append("Nothing to list. Try storing content.");
-            }
-
-            files.forEach(file -> stringBuilder.append(file.getName().replaceAll(".enc", "\t").replaceAll("_", " ")).append(encryptionEngine.decrypt(file.getAbsolutePath())).append("\n"));
-
-            output = stringBuilder.toString();
-        } catch (IOException e)
-        {
-            logger.error("Error while reading the directory.");
-        }
-
-        return output;
-    }
-
-    List<LoginInfo> getAllLoginInfo()
-    {
-        List<LoginInfo> loginInfos = new ArrayList<>();
-        try
-        {
-            List<File> files = Files.list(Paths.get(path))
-                    .map(Path::toFile)
-                    .filter(file -> !file.getName().contains(".key"))
-                    .collect(Collectors.toList());
-
-//            files.forEach(file -> stringBuilder.append(file.getName().replaceAll(".enc", "\t")).append(encryptionEngine.decrypt(file.getAbsolutePath())).append("\n"));
-            files.forEach(file ->
-            {
-                String[] tokens = file.getName().replaceAll(".enc", "").split("_");
-                String id = tokens[0];
-                String username = tokens[1];
-                String password = encryptionEngine.decrypt(file.getAbsolutePath());
-
-                loginInfos.add(new LoginInfo(id, username , password));
-            });
-
-        } catch (IOException e)
-        {
-            System.err.println("Error while reading the directory.");
-        }
-
-        return loginInfos;
-    }
-
     public void start(Stage primaryStage) throws Exception
     {
         primaryStage.setTitle(TITLE);
@@ -230,9 +165,9 @@ public class Main extends Application
         Parent root = mainFxmlLoader.load();
         MainController mainController = mainFxmlLoader.getController();
 
-        List<LoginInfo> loginInfos = getAllLoginInfo();
-
-        loginInfos.forEach(loginInfo -> mainController.addContent(ElementCardController.createNewCard(loginInfo)));
+        // load existing login information
+        List<LoginInfo> loginInfos = loginInfoProvider.getAllLoginInfo(path);
+        loginInfos.forEach(loginInfo -> mainController.addContent(ElementCardController.createNewCard(mainController, loginInfo)));
 
         primaryStage.setScene(new Scene(root, 600, 600));
         primaryStage.show();
