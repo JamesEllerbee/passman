@@ -1,9 +1,7 @@
 package com.jamesellerbee.security;
 
 import com.jamesellerbee.interfaces.IEncryptionEngine;
-import com.jamesellerbee.interfaces.IInjector;
 import com.jamesellerbee.interfaces.ILogger;
-import com.jamesellerbee.interfaces.IPropertyProvider;
 import com.jamesellerbee.utilities.constants.SystemConstants;
 import com.jamesellerbee.utilities.logging.SimpleLogger;
 
@@ -20,8 +18,22 @@ import java.security.NoSuchAlgorithmException;
  */
 public class EncryptionEngine implements IEncryptionEngine
 {
-    private static final String KEY_FILE_NAME = "private.key";
-    private static final String CONTENT_FILE_EXTENSION = ".enc";
+    /**
+     * Separator between id and username.
+     */
+    public static final String FILE_NAME_SEPARATOR = " ";
+
+    /**
+     * File name extension for login file.
+     */
+    public static final String LOGIN_FILE_EXTENSION = ".enc";
+
+    /**
+     * File name extension for key file.
+     */
+    public static final String KEY_FILE_EXTENSION = ".key";
+
+    private static final String DEFAULT_KEY_FILE_NAME = "private.key";
 
     private final ILogger logger = new SimpleLogger(getClass().getName());
 
@@ -40,11 +52,12 @@ public class EncryptionEngine implements IEncryptionEngine
      */
     public EncryptionEngine()
     {
-        this(KEY_FILE_NAME);
+        this(DEFAULT_KEY_FILE_NAME);
     }
 
     /**
      * Constructs the encryption engine and generates or processes the key file
+     *
      * @param fileName Key file name.
      */
     public EncryptionEngine(String fileName)
@@ -124,10 +137,7 @@ public class EncryptionEngine implements IEncryptionEngine
         initializeCipherForEncryption();
         byte[] iv = cipher.getIV();
 
-        try (
-                FileOutputStream fileOutputStream = new FileOutputStream(path);
-                CipherOutputStream cipherOutputStream = new CipherOutputStream(fileOutputStream, cipher)
-        )
+        try (FileOutputStream fileOutputStream = new FileOutputStream(path); CipherOutputStream cipherOutputStream = new CipherOutputStream(fileOutputStream, cipher))
         {
             fileOutputStream.write(iv);
             cipherOutputStream.write(content.getBytes());
@@ -154,11 +164,7 @@ public class EncryptionEngine implements IEncryptionEngine
             fileInputStream.read(fileIv);
             initializeCipherForDecryption(fileIv);
 
-            try (
-                    CipherInputStream cipherInputStream = new CipherInputStream(fileInputStream, cipher);
-                    InputStreamReader inputStreamReader = new InputStreamReader(cipherInputStream);
-                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            )
+            try (CipherInputStream cipherInputStream = new CipherInputStream(fileInputStream, cipher); InputStreamReader inputStreamReader = new InputStreamReader(cipherInputStream); BufferedReader bufferedReader = new BufferedReader(inputStreamReader);)
             {
                 StringBuilder stringBuilder = new StringBuilder();
                 String line;
@@ -172,6 +178,7 @@ public class EncryptionEngine implements IEncryptionEngine
         catch (IOException e)
         {
             logger.error("There was an issue with the path.");
+            logger.debug("Exception: " + e.getMessage());
         }
 
         return content;

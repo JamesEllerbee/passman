@@ -2,6 +2,7 @@ package com.jamesellerbee.utilities.injection;
 
 import com.jamesellerbee.interfaces.IInjector;
 import com.jamesellerbee.interfaces.ILogger;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,9 +21,20 @@ class InjectorTest
         testInjector = Injector.getNewInstance();
     }
 
+    @AfterEach
     void tearDown()
     {
         testInjector = null;
+    }
+
+    /**
+     * Verifies that Injector returns the same singleton reference.
+     */
+    @Test
+    @DisplayName("return the same singleton reference")
+    void testGetSameInstance()
+    {
+        assertSame(Injector.getInstance(), Injector.getInstance(), "Expected the same instance.");
     }
 
     @Test

@@ -16,16 +16,15 @@ public class SimpleLogger implements ILogger
     public void verbose(String message)
     {
         System.out.println("VERBOSE: [" + location + "] " + message);
-
     }
 
     @Override
     public void debug(String message)
     {
         System.out.println("DEBUG: [" + location + "] " + message);
-
     }
 
+    @Override
     public void warn(String message)
     {
         System.out.println("WARNING: [" + location + "] " + message);
@@ -40,6 +39,6 @@ public class SimpleLogger implements ILogger
     @Override
     public void error(String message)
     {
-        System.err.println("E: [ " + location + " ] " + message);
+        System.err.println("ERROR: [ " + location + " ] " + message);
     }
 }

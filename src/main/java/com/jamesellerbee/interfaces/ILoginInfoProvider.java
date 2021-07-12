@@ -10,11 +10,6 @@ import java.util.List;
 public interface ILoginInfoProvider
 {
     /**
-     * Gets info from UI and persists login data.
-     */
-    void createNewLoginInfo();
-
-    /**
      * Retrieves all login info from file system.
      *
      * @param path The path to read in login data.

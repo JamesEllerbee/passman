@@ -2,12 +2,11 @@ package com.jamesellerbee.utilities.properties;
 
 import com.jamesellerbee.interfaces.ILogger;
 import com.jamesellerbee.interfaces.IPropertyProvider;
+import com.jamesellerbee.utilities.constants.SystemConstants;
 import com.jamesellerbee.utilities.logging.SimpleLogger;
 
 import java.io.*;
-import java.security.cert.CertSelector;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * Queries a specified properties file and returns content stored in it.
@@ -15,13 +14,13 @@ import java.util.logging.Logger;
 public class PropertyProvider implements IPropertyProvider
 {
     private final ILogger logger = new SimpleLogger(getClass().getName());
-    private static String DEFAULT_PATH = System.getProperty("user.dir") + System.getProperty("file.separator") + "passman.properties";
+    private static final String DEFAULT_PROPERTIES_PATH = SystemConstants.DEFAULT_PATH + SystemConstants.SYSTEM_FILE_SEPARATOR + "passman.properties";
 
-    private Properties properties;
+    private final Properties properties;
 
     public PropertyProvider()
     {
-        this(DEFAULT_PATH);
+        this(DEFAULT_PROPERTIES_PATH);
     }
 
     public PropertyProvider(String propertiesPath)
@@ -57,7 +56,7 @@ public class PropertyProvider implements IPropertyProvider
     @Override
     public void store(String key, String value)
     {
-        logger.warn("Unsupported method call.");
+        properties.setProperty(key, value);
     }
 
     private <T> T cast(String value, T defaultValue)

@@ -14,11 +14,12 @@ public class Injector implements IInjector
 
     /**
      * Get singleton reference to an injector.
+     *
      * @return The injector reference.
      */
     public static IInjector getInstance()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = new Injector();
         }
@@ -28,6 +29,7 @@ public class Injector implements IInjector
 
     /**
      * Get a new instance of an injector.
+     *
      * @return The injector reference.
      */
     public static IInjector getNewInstance()
@@ -44,7 +46,7 @@ public class Injector implements IInjector
     @Override
     public <T> void register(Class<T> type, T value)
     {
-        if(!dependencyMap.containsKey(type))
+        if (!dependencyMap.containsKey(type))
         {
             dependencyMap.put(type, value);
         }
@@ -54,7 +56,7 @@ public class Injector implements IInjector
     public <T> void register(Class<T> type, Object key, T value)
     {
         Map<Object, Object> dependencyMap;
-        if(dependencyMapWithKey.containsKey(type))
+        if (dependencyMapWithKey.containsKey(type))
         {
             dependencyMap = dependencyMapWithKey.get(type);
         }
@@ -76,5 +78,24 @@ public class Injector implements IInjector
     public <T> T resolve(Class<T> type, Object key)
     {
         return (T) dependencyMapWithKey.get(type).get(key);
+    }
+
+    @Override
+    public <T> boolean contains(Class<T> type)
+    {
+        return dependencyMap.containsKey(type);
+    }
+
+    @Override
+    public <T> boolean contains(Class<T> type, Object key)
+    {
+        boolean result = false;
+        if (dependencyMapWithKey.containsKey(type))
+        {
+            Map<Object, Object> dependencyMap = dependencyMapWithKey.get(type);
+            result = dependencyMap.containsKey(key);
+        }
+
+        return result;
     }
 }

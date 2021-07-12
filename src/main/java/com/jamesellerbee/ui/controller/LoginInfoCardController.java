@@ -13,10 +13,9 @@ import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 
-public class ElementCardController
+public class LoginInfoCardController
 {
     private final ILogger logger = new SimpleLogger(getClass().getName());
-
 
     private MainController mainController;
 
@@ -63,24 +62,26 @@ public class ElementCardController
      * Creates a new login info card.
      *
      * @param dependencyInjector Dependency injector.
-     * @param loginInfo Login info.
+     * @param loginInfo          Login info.
      * @return The parent node of the info card.
      */
     public static Parent createNewCard(IInjector dependencyInjector, LoginInfo loginInfo)
     {
-        FXMLLoader elementCardFxmlLoader = new FXMLLoader(ElementCardController.class.getClassLoader().getResource(
+        FXMLLoader elementCardFxmlLoader = new FXMLLoader(LoginInfoCardController.class.getClassLoader().getResource(
                 "loginCard.fxml"));
 
-        Parent elementCard = null;
+        Parent root = null;
         try
         {
             MainController mainController = dependencyInjector.resolve(MainController.class);
 
-            elementCard = elementCardFxmlLoader.load();
-            ElementCardController elementCardController = elementCardFxmlLoader.getController();
+            root = elementCardFxmlLoader.load();
+            root.setId(loginInfo.getIdentifier());
 
-            elementCardController.setLoginInfo(loginInfo);
-            elementCardController.setMainController(mainController);
+            LoginInfoCardController loginInfoCardController = elementCardFxmlLoader.getController();
+
+            loginInfoCardController.setLoginInfo(loginInfo);
+            loginInfoCardController.setMainController(mainController);
 
         }
         catch (IOException e)
@@ -88,7 +89,7 @@ public class ElementCardController
             e.printStackTrace();
         }
 
-        return elementCard;
+        return root;
     }
 
     public void onMouseClickedLoginInfo(MouseEvent mouseEvent)

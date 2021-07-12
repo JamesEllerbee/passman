@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<BorderPane prefHeight="40.0" prefWidth="80.0" xmlns="http://javafx.com/javafx/11.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jamesellerbee.ui.controller.ElementCardController">
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="40.0" prefWidth="80.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.jamesellerbee.ui.controller.LoginInfoCardController">
     <top>
-        <TitledPane fx:id="identifier" onMouseClicked="#onMouseClickedLoginInfo" animated="false" collapsible="false"
-                    text="Identifier" BorderPane.alignment="CENTER">
+        <TitledPane fx:id="identifier" animated="false" collapsible="false" onMouseClicked="#onMouseClickedLoginInfo" text="Identifier" BorderPane.alignment="CENTER">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="40.0" prefWidth="80.0">
                     <children>
-                        <Label fx:id="username" layoutX="12.0" layoutY="12.0" text="User name"/>
+                        <Label fx:id="username" layoutX="12.0" layoutY="12.0" text="User name" />
                     </children>
                 </AnchorPane>
             </content>
         </TitledPane>
     </top>
+   <padding>
+      <Insets bottom="10.0" left="10.0" />
+   </padding>
 </BorderPane>

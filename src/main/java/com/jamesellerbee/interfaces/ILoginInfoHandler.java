@@ -9,12 +9,17 @@ public interface ILoginInfoHandler
 {
     /**
      * Stores the login info to the system.
+     *
      * @param loginInfo The login info.
+     * @return True if stored login created, otherwise false.
      */
-    void store(LoginInfo loginInfo);
+    boolean store(LoginInfo loginInfo);
+
     /**
-     * Deletes specified identifier from system.
-     * @param identifier The identifier of the login info.
+     * Deletes specified login info from system.
+     *
+     * @param loginInfo The login info.
+     * @return True if stored login was deleted, otherwise false.
      */
-    void remove(String identifier);
+    boolean remove(LoginInfo loginInfo);
 }

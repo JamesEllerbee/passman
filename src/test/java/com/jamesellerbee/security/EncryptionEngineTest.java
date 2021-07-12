@@ -13,13 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("An EncryptionEngine should...")
 class EncryptionEngineTest
 {
-
-    @BeforeEach
-    void setup()
-    {
-
-    }
-
     @AfterEach
     void clean()
     {
@@ -30,11 +23,26 @@ class EncryptionEngineTest
         }
     }
 
+    @Test
+    @DisplayName("generate a key file with default file name")
+    void testCreateKeyFileDefault()
+    {
+        // Given that the key file does not already exist
+
+        // When the encryption object is created
+        EncryptionEngine encryption = new EncryptionEngine();
+        // Then the test file exists.
+        File file = new File("private.key");
+        assertTrue(file.exists());
+        // Finally, clean up
+        file.delete();
+    }
+
     /**
      * Verifies that the keyfile gets generated.
      */
     @Test
-    @DisplayName("generate a key file.")
+    @DisplayName("generate a key file with specified file name.")
     void testCreateKeyFile()
     {
         // Given that the key file does not already exist

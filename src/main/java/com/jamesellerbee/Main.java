@@ -1,28 +1,24 @@
 package com.jamesellerbee;
 
-import com.jamesellerbee.data.LoginInfoProvider;
-import com.jamesellerbee.interfaces.*;
-import com.jamesellerbee.ui.models.LoginInfo;
-import com.jamesellerbee.security.EncryptionEngine;
-import com.jamesellerbee.ui.controller.ElementCardController;
+import com.jamesellerbee.interfaces.IInjector;
+import com.jamesellerbee.interfaces.ILogger;
+import com.jamesellerbee.interfaces.ILoginInfoProvider;
+import com.jamesellerbee.interfaces.IPropertyProvider;
+import com.jamesellerbee.ui.controller.LoginInfoCardController;
 import com.jamesellerbee.ui.controller.MainController;
-import com.jamesellerbee.utilities.console.ConsoleException;
-import com.jamesellerbee.utilities.console.ConsoleHandler;
+import com.jamesellerbee.ui.models.LoginInfo;
 import com.jamesellerbee.utilities.constants.PropertyConstants;
 import com.jamesellerbee.utilities.constants.SystemConstants;
 import com.jamesellerbee.utilities.injection.DependencyLoader;
 import com.jamesellerbee.utilities.injection.Injector;
 import com.jamesellerbee.utilities.logging.SimpleLogger;
-import com.jamesellerbee.utilities.properties.PropertyProvider;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.util.List;
-import java.util.Scanner;
 
 public class Main extends Application
 {
@@ -43,6 +39,7 @@ public class Main extends Application
 
     public void start(Stage primaryStage) throws Exception
     {
+        // TODO: parse application arguments and add a headless mode.
         primaryStage.setTitle(TITLE);
 
         // main ui
@@ -57,7 +54,7 @@ public class Main extends Application
 
         List<LoginInfo> loginInfos = loginInfoProvider.getAllLoginInfo(propertyProvider.get(PropertyConstants.PATH,
                 SystemConstants.DEFAULT_PATH));
-        loginInfos.forEach(loginInfo -> mainController.addContent(ElementCardController.createNewCard(dependencyInjector, loginInfo)));
+        loginInfos.forEach(loginInfo -> mainController.addContent(LoginInfoCardController.createNewCard(dependencyInjector, loginInfo)));
 
         primaryStage.setScene(new Scene(root, 600, 600));
         primaryStage.show();

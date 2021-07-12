@@ -1,5 +1,6 @@
 package com.jamesellerbee.utilities.injection;
 
+import com.jamesellerbee.data.LoginInfoHandler;
 import com.jamesellerbee.data.LoginInfoProvider;
 import com.jamesellerbee.interfaces.*;
 import com.jamesellerbee.security.EncryptionEngine;
@@ -25,23 +26,25 @@ public class DependencyLoader
         }
 
         this.dependencyInjector = dependencyInjector;
+        // Immediately load a property provider so it is available when loading other dependencies.
+        dependencyInjector.register(IPropertyProvider.class, new PropertyProvider());
     }
 
     public void load()
     {
-        loadHandlers();
         loadProviders();
+        loadHandlers();
         loadEngines();
     }
 
     private void loadHandlers()
     {
         dependencyInjector.register(IConsoleHandler.class, new ConsoleHandler());
+        dependencyInjector.register(ILoginInfoHandler.class, new LoginInfoHandler(dependencyInjector));
     }
 
     private void loadProviders()
     {
-        dependencyInjector.register(IPropertyProvider.class, new PropertyProvider());
         dependencyInjector.register(ILoginInfoProvider.class, new LoginInfoProvider(dependencyInjector));
     }
 

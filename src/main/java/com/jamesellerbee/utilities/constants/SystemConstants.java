@@ -1,5 +1,12 @@
 package com.jamesellerbee.utilities.constants;
 
+/**
+ * Constants related to system.
+ *
+ * <p>
+ * e.g. file paths, and system properties.
+ * </p>
+ */
 public class SystemConstants
 {
     /**
@@ -14,4 +21,6 @@ public class SystemConstants
      * The system line separator.
      */
     public static final String SYSTEM_LINE_SEPARATOR = System.lineSeparator();
+
+
 }

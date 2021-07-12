@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -13,7 +14,14 @@
                     <content>
                       <AnchorPane prefHeight="384.0" prefWidth="162.0">
                            <children>
-                              <VBox fx:id="vboxContent" prefHeight="398.0" prefWidth="169.0" AnchorPane.bottomAnchor="-198.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-69.0" AnchorPane.topAnchor="0.0" />
+                              <VBox fx:id="vboxContent" prefHeight="582.0" prefWidth="159.0" AnchorPane.bottomAnchor="-198.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <Button fx:id="addNew" alignment="TOP_LEFT" mnemonicParsing="false" onMouseClicked="#onAddNewMouseClicked" text="Add New" textAlignment="CENTER">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="10.0" top="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                 </children></VBox>
                            </children>
                         </AnchorPane>
                     </content>
@@ -27,9 +35,10 @@
                   <Label fx:id="selectedUsername" layoutX="27.0" layoutY="72.0" text="Selected Username" visible="false" />
                   <Label fx:id="passwordLabel" layoutX="16.0" layoutY="100.0" text="Password" visible="false" />
                   <Label fx:id="selectedPassword" layoutX="27.0" layoutY="130.0" text="************" visible="false" />
-                  <Button alignment="TOP_LEFT" layoutX="8.0" layoutY="10.0" mnemonicParsing="false" text="Add New" textAlignment="CENTER" />
                   <Button fx:id="closeButton" alignment="TOP_RIGHT" contentDisplay="CENTER" disable="true" layoutX="357.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onCloseMouseClicked" text="Close" textAlignment="CENTER" visible="false" />
                   <Button fx:id="toggleViewPassword" disable="true" layoutX="74.0" layoutY="96.0" mnemonicParsing="false" onMouseClicked="#OnViewToggleMouseClicked" text="View" visible="false" />
+                  <Button fx:id="edit" layoutX="15.0" layoutY="165.0" mnemonicParsing="false" onMouseClicked="#onEditMouseClicked" text="Edit" visible="false" />
+                  <Button fx:id="delete" layoutX="62.0" layoutY="165.0" mnemonicParsing="false" onMouseClicked="#onDeleteMouseClicked" text="Delete" visible="false" />
                </children></AnchorPane>
         </items>
       </SplitPane>
