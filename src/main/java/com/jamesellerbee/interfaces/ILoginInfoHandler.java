@@ -11,9 +11,10 @@ public interface ILoginInfoHandler
      * Stores the login info to the system.
      *
      * @param loginInfo The login info.
+     * @param newContent If the loginInfo is new.
      * @return True if stored login created, otherwise false.
      */
-    boolean store(LoginInfo loginInfo);
+    boolean store(LoginInfo loginInfo, boolean newContent);
 
     /**
      * Deletes specified login info from system.

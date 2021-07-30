@@ -33,7 +33,7 @@ public class LoginInfoHandler implements ILoginInfoHandler
     }
 
     @Override
-    public boolean store(LoginInfo loginInfo)
+    public boolean store(LoginInfo loginInfo, boolean newContent)
     {
         boolean result = false;
 
@@ -63,7 +63,15 @@ public class LoginInfoHandler implements ILoginInfoHandler
                 MainController mainController = dependencyInjector.resolve(MainController.class);
                 if (mainController != null)
                 {
-                    mainController.addContent(LoginInfoCardController.createNewCard(dependencyInjector, loginInfo));
+                    if(newContent)
+                    {
+                        mainController.addContent(loginInfo.getIdentifier(), LoginInfoCardController.createNewCard(dependencyInjector, loginInfo));
+                    }
+                    else
+                    {
+                        mainController.updateContent(loginInfo.getIdentifier(), LoginInfoCardController.createNewCard(dependencyInjector, loginInfo));
+                        mainController.setSelected(loginInfo);
+                    }
                 }
             }
         }

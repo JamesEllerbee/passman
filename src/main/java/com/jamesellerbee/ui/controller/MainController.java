@@ -13,15 +13,18 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class MainController
 {
-
     private ILogger logger = new SimpleLogger(getClass().getName());
 
     private static final String VIEW = "View";
@@ -30,12 +33,13 @@ public class MainController
     private IInjector dependencyInjector;
     private ILoginInfoHandler loginInfoHandler;
     private String password;
-    private boolean creatingLogin = false;
+    private boolean creatingOrEditingLogin = false;
+    private Map<String, Parent> loginInfoMap;
 
-    public MainController()
-    {
-        dependencyInjector = Injector.getInstance();
-    }
+    private Region visibilityIcon;
+    private Region visibilityOffIcon;
+    private Region editIcon;
+    private Region deleteIcon;
 
     @FXML
     private Button edit;
@@ -58,9 +62,23 @@ public class MainController
     @FXML
     private VBox vboxContent;
 
-    public void addContent(Parent root)
+    public MainController()
+    {
+        dependencyInjector = Injector.getInstance();
+        loginInfoMap = new HashMap<>();
+    }
+
+    public void addContent(String id, Parent root)
     {
         vboxContent.getChildren().addAll(root);
+        loginInfoMap.put(id ,root);
+    }
+
+    public void updateContent(String id, Parent newCard)
+    {
+        vboxContent.getChildren().remove(loginInfoMap.get(id));
+        vboxContent.getChildren().addAll(newCard);
+        loginInfoMap.put(id, newCard);
     }
 
     public void removeContent(Node root)
@@ -75,9 +93,10 @@ public class MainController
         selectedPassword.setText(StringUtility.getPasswordTemplate(loginInfo.getPassword()));
         password = loginInfo.getPassword();
 
+        setupIconButtons();
+        changeToggleViewPasswordIcon(true);
         setControlsVisible(true);
         setControlsEnabled(true);
-
     }
 
     public void onCloseMouseClicked(MouseEvent mouseEvent)
@@ -95,12 +114,116 @@ public class MainController
         if (isShowingPassword())
         {
             selectedPassword.setText(StringUtility.getPasswordTemplate(password));
-            toggleViewPassword.setText(VIEW);
+            changeToggleViewPasswordIcon(true);
         }
         else
         {
             selectedPassword.setText(password);
-            toggleViewPassword.setText(HIDE);
+            changeToggleViewPasswordIcon(false);
+        }
+    }
+
+    private void setupIconButtons()
+    {
+        setupEditIconButton();
+        setupDeleteIconButton();
+    }
+
+    private void setupDeleteIconButton()
+    {
+        if (delete.getText() != null)
+        {
+            delete.setText(null);
+        }
+
+        if (delete.getTooltip() == null)
+        {
+            Tooltip deleteToolTip = new Tooltip();
+            deleteToolTip.setText("Delete selected login info");
+            delete.setTooltip(deleteToolTip);
+        }
+
+        if (deleteIcon == null)
+        {
+            deleteIcon = new Region();
+            deleteIcon.getStyleClass().add("delete");
+        }
+
+        if (!delete.getStyleClass().contains("icon-button"))
+        {
+            delete.getStyleClass().add("icon-button");
+            delete.setGraphic(deleteIcon);
+        }
+    }
+
+    private void setupEditIconButton()
+    {
+        // Remove text from edit button if any
+        if (edit.getText() != null)
+        {
+            edit.setText(null);
+        }
+
+        if (edit.getTooltip() == null)
+        {
+            Tooltip editToolTip = new Tooltip();
+            editToolTip.setText("Edit selected login info");
+            edit.setTooltip(editToolTip);
+        }
+
+        if (editIcon == null)
+        {
+            editIcon = new Region();
+            editIcon.getStyleClass().add("edit");
+        }
+
+        if (!edit.getStyleClass().contains("icon-button"))
+        {
+            edit.getStyleClass().add("icon-button");
+            edit.setGraphic(editIcon);
+        }
+    }
+
+    private void changeToggleViewPasswordIcon(boolean visibility)
+    {
+        // Remove text from button if any
+        if (toggleViewPassword.getText() != null)
+        {
+            toggleViewPassword.setText(null);
+        }
+
+        if (toggleViewPassword.getTooltip() == null)
+        {
+            Tooltip toggleViewPasswordToolTip = new Tooltip();
+            toggleViewPasswordToolTip.setText("Toggle visibility of the login info");
+
+            toggleViewPassword.setTooltip(toggleViewPasswordToolTip);
+        }
+
+        if (!toggleViewPassword.getStyleClass().contains("icon-button"))
+        {
+            toggleViewPassword.getStyleClass().add("icon-button");
+        }
+
+        if (visibilityIcon == null)
+        {
+            visibilityIcon = new Region();
+            visibilityIcon.getStyleClass().add("visibility");
+        }
+
+        if (visibilityOffIcon == null)
+        {
+            visibilityOffIcon = new Region();
+            visibilityOffIcon.getStyleClass().add("visibility-off");
+        }
+
+        if (visibility)
+        {
+            toggleViewPassword.setGraphic(visibilityIcon);
+        }
+        else
+        {
+            toggleViewPassword.setGraphic(visibilityOffIcon);
         }
     }
 
@@ -132,18 +255,18 @@ public class MainController
 
     public void onAddNewMouseClicked(MouseEvent mouseEvent)
     {
-        if (!creatingLogin)
+        if (!creatingOrEditingLogin)
         {
             Parent root = LoginInfoPromptController.createLoginPrompt();
             if (root != null)
             {
                 Stage stage = new Stage();
-                stage.setTitle(LoginInfoPromptController.TITLE);
+                stage.setTitle(LoginInfoPromptController.TITLE_CREATE_NEW);
                 stage.setScene(new Scene(root, 600, 400));
-                stage.setOnCloseRequest(event -> setCreatingLogin(false));
+                stage.setOnCloseRequest(event -> setCreatingOrEditingLogin(false));
                 stage.show();
 
-                setCreatingLogin(true);
+                setCreatingOrEditingLogin(true);
             }
         }
         else
@@ -152,13 +275,28 @@ public class MainController
         }
     }
 
-    public void setCreatingLogin(boolean creatingLogin)
+    public void setCreatingOrEditingLogin(boolean creatingOrEditingLogin)
     {
-        this.creatingLogin = creatingLogin;
+        this.creatingOrEditingLogin = creatingOrEditingLogin;
     }
 
     public void onEditMouseClicked(MouseEvent mouseEvent)
     {
+        if (!creatingOrEditingLogin)
+        {
+            Parent root = LoginInfoPromptController.createLoginPrompt(new LoginInfo(selectedIdentifier.getText(), selectedUsername.getText(), password));
+            if (root != null)
+            {
+                Stage stage = new Stage();
+                stage.setTitle(LoginInfoPromptController.TITLE_EDIT_EXISTING);
+                stage.setScene(new Scene(root, 600, 400));
+                stage.setOnCloseRequest(event -> setCreatingOrEditingLogin(false));
+                stage.setOnHidden(event -> setCreatingOrEditingLogin(false));
+                stage.show();
+
+                setCreatingOrEditingLogin(true);
+            }
+        }
     }
 
     public void onDeleteMouseClicked(MouseEvent mouseEvent)

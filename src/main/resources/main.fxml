@@ -30,15 +30,18 @@
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <Label fx:id="selectedIdentifier" layoutX="162.0" layoutY="14.0" text="Selected Identifer" visible="false" />
-                  <Label fx:id="usernameLabel" layoutX="14.0" layoutY="44.0" text="Username" visible="false" />
-                  <Label fx:id="selectedUsername" layoutX="27.0" layoutY="72.0" text="Selected Username" visible="false" />
-                  <Label fx:id="passwordLabel" layoutX="16.0" layoutY="100.0" text="Password" visible="false" />
-                  <Label fx:id="selectedPassword" layoutX="27.0" layoutY="130.0" text="************" visible="false" />
+                  <Label fx:id="selectedIdentifier" contentDisplay="CENTER" layoutX="133.0" layoutY="22.0" style="-fx-font-size: 18; -fx-font-weight: bold;" text="Selected Identifer" visible="false" />
+                  <Label fx:id="usernameLabel" layoutX="151.0" layoutY="82.0" style="-fx-font-weight: bold;" text="Username" visible="false" />
+                  <Label fx:id="selectedUsername" layoutX="164.0" layoutY="110.0" text="Selected Username" visible="false" />
+                  <Label fx:id="passwordLabel" layoutX="153.0" layoutY="138.0" style="-fx-font-weight: bold;" text="Password" visible="false" />
+                  <Label fx:id="selectedPassword" layoutX="164.0" layoutY="168.0" text="************" visible="false" />
                   <Button fx:id="closeButton" alignment="TOP_RIGHT" contentDisplay="CENTER" disable="true" layoutX="357.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onCloseMouseClicked" text="Close" textAlignment="CENTER" visible="false" />
-                  <Button fx:id="toggleViewPassword" disable="true" layoutX="74.0" layoutY="96.0" mnemonicParsing="false" onMouseClicked="#OnViewToggleMouseClicked" text="View" visible="false" />
-                  <Button fx:id="edit" layoutX="15.0" layoutY="165.0" mnemonicParsing="false" onMouseClicked="#onEditMouseClicked" text="Edit" visible="false" />
-                  <Button fx:id="delete" layoutX="62.0" layoutY="165.0" mnemonicParsing="false" onMouseClicked="#onDeleteMouseClicked" text="Delete" visible="false" />
+                  <Button fx:id="toggleViewPassword" disable="true" layoutX="217.0" layoutY="134.0" mnemonicParsing="false" onMouseClicked="#OnViewToggleMouseClicked" text="View" visible="false" AnchorPane.leftAnchor="217.0">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets></Button>
+                  <Button fx:id="edit" accessibleHelp="Edit" accessibleRoleDescription="Edit the login information" accessibleText="Edit" layoutX="152.0" layoutY="203.0" mnemonicParsing="false" onMouseClicked="#onEditMouseClicked" text="Edit" visible="false" />
+                  <Button fx:id="delete" layoutX="199.0" layoutY="203.0" mnemonicParsing="false" onMouseClicked="#onDeleteMouseClicked" text="Delete" visible="false" />
                </children></AnchorPane>
         </items>
       </SplitPane>
