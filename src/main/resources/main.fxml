@@ -8,7 +8,7 @@
    <children>
       <SplitPane dividerPositions="0.3" pickOnBounds="false" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+          <AnchorPane>
                <children>
                   <ScrollPane prefHeight="398.0" prefWidth="175.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <content>
@@ -28,21 +28,37 @@
                   </ScrollPane>
                </children>
             </AnchorPane>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+          <AnchorPane minHeight="0.0" minWidth="0.0">
                <children>
-                  <Label fx:id="selectedIdentifier" contentDisplay="CENTER" layoutX="133.0" layoutY="22.0" style="-fx-font-size: 18; -fx-font-weight: bold;" text="Selected Identifer" visible="false" />
-                  <Label fx:id="usernameLabel" layoutX="151.0" layoutY="82.0" style="-fx-font-weight: bold;" text="Username" visible="false" />
-                  <Label fx:id="selectedUsername" layoutX="164.0" layoutY="110.0" text="Selected Username" visible="false" />
-                  <Label fx:id="passwordLabel" layoutX="153.0" layoutY="138.0" style="-fx-font-weight: bold;" text="Password" visible="false" />
-                  <Label fx:id="selectedPassword" layoutX="164.0" layoutY="168.0" text="************" visible="false" />
-                  <Button fx:id="closeButton" alignment="TOP_RIGHT" contentDisplay="CENTER" disable="true" layoutX="357.0" layoutY="10.0" mnemonicParsing="false" onMouseClicked="#onCloseMouseClicked" text="Close" textAlignment="CENTER" visible="false" />
-                  <Button fx:id="toggleViewPassword" disable="true" layoutX="217.0" layoutY="134.0" mnemonicParsing="false" onMouseClicked="#OnViewToggleMouseClicked" text="View" visible="false" AnchorPane.leftAnchor="217.0">
-                     <opaqueInsets>
-                        <Insets />
-                     </opaqueInsets></Button>
-                  <Button fx:id="edit" accessibleHelp="Edit" accessibleRoleDescription="Edit the login information" accessibleText="Edit" layoutX="152.0" layoutY="203.0" mnemonicParsing="false" onMouseClicked="#onEditMouseClicked" text="Edit" visible="false" />
-                  <Button fx:id="delete" layoutX="199.0" layoutY="203.0" mnemonicParsing="false" onMouseClicked="#onDeleteMouseClicked" text="Delete" visible="false" />
-                  <Label fx:id="viewInstruction" layoutX="23.0" layoutY="189.0" style="-fx-font-size: 14; -fx-text-fill: gray;" text="Select a card from the other panel to view login information." />
+                  <GridPane alignment="CENTER" layoutX="-2.0" prefHeight="398.0" prefWidth="416.0">
+                    <columnConstraints>
+                      <ColumnConstraints maxWidth="155.0" minWidth="10.0" prefWidth="155.0" />
+                        <ColumnConstraints maxWidth="171.0" minWidth="0.0" prefWidth="127.0" />
+                        <ColumnConstraints maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="134.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" prefHeight="28.0" />
+                        <RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" prefHeight="30.0" />
+                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="30.0" />
+                      <RowConstraints maxHeight="1.7976931348623157E308" minHeight="0.0" prefHeight="30.0" />
+                    </rowConstraints>
+                     <children>
+                        <Label fx:id="selectedIdentifier" contentDisplay="CENTER" style="-fx-font-size: 18; -fx-font-weight: bold;" text="Selected Identifer" GridPane.columnSpan="2" GridPane.halignment="CENTER" />
+                        <Button fx:id="closeButton" alignment="TOP_RIGHT" contentDisplay="CENTER" disable="true" mnemonicParsing="false" onMouseClicked="#onCloseMouseClicked" text="Close" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                        <Label fx:id="usernameLabel" style="-fx-font-weight: bold;" text="Username" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                        <Label fx:id="selectedUsername" text="Selected Username" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label fx:id="passwordLabel" style="-fx-font-weight: bold;" text="Password" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                        <Label fx:id="selectedPassword" text="************" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Button fx:id="toggleViewPassword" disable="true" mnemonicParsing="false" onMouseClicked="#OnViewToggleMouseClicked" text="View" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                        </Button>
+                        <Button fx:id="delete" mnemonicParsing="false" onMouseClicked="#onDeleteMouseClicked" text="Delete" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Button fx:id="edit" accessibleHelp="Edit" accessibleRoleDescription="Edit the login information" accessibleText="Edit" alignment="CENTER" mnemonicParsing="false" onMouseClicked="#onEditMouseClicked" text="Edit" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+                        <Label fx:id="viewInstruction" alignment="CENTER" prefWidth="474.0" style="-fx-text-fill: gray;" text="Select a card from the other panel to view login information." visible="false" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowSpan="2147483647" GridPane.valignment="CENTER" />
+                     </children>
+                  </GridPane>
                </children></AnchorPane>
         </items>
       </SplitPane>
