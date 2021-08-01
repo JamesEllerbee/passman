@@ -12,7 +12,9 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -26,12 +28,14 @@ public class LoginInfoPromptController
 
     public static String TITLE_EDIT_EXISTING = "Edit stored login";
 
+    private final ILogger logger = new SimpleLogger(getClass().getName());
 
+    private final IInjector dependencyInjector;
 
-    private ILogger logger = new SimpleLogger(getClass().getName());
+    private Region visibilityIcon;
+    private Region visibilityOffIcon;
 
-    private IInjector dependencyInjector;
-
+    // region FXML Fields
     @FXML
     private TextField username;
     @FXML
@@ -42,10 +46,31 @@ public class LoginInfoPromptController
     private TextField password;
     @FXML
     private Button create;
+    @FXML
+    public Button viewPassword;
+    // endregion
 
+    // region Constructors
+    
+    /**
+     * Initializes a new LoginInfoPromptController.
+     */
     public LoginInfoPromptController()
     {
         dependencyInjector = Injector.getInstance();
+    }
+    
+    // endregion
+
+    //region Public Methods
+
+    /**
+     * Performs any loading steps after the controls are loaded.
+     */
+    public void load()
+    {
+        setupIconButtons();
+        changeViewPasswordIcon(true);
     }
 
     public void setUsernameText(String usernameText)
@@ -68,6 +93,35 @@ public class LoginInfoPromptController
         create.setText(text);
     }
 
+    public void onViewMouseClicked(MouseEvent mouseEvent)
+    {
+        boolean currentlyViewing = password.isVisible();
+        if(currentlyViewing)
+        {
+            String passwordValue = password.getText();
+            password.setVisible(false);
+            password.setDisable(true);
+
+            hiddenPassword.setText(passwordValue);
+            hiddenPassword.setDisable(false);
+            hiddenPassword.setVisible(true);
+
+            changeViewPasswordIcon(true);
+        }
+        else
+        {
+            String passwordValue = hiddenPassword.getText();
+            hiddenPassword.setVisible(false);
+            hiddenPassword.setDisable(true);
+
+            password.setText(passwordValue);
+            password.setDisable(false);
+            password.setVisible(true);
+
+            changeViewPasswordIcon(false);
+        }
+
+    }
 
     public void onCreateClicked(MouseEvent mouseEvent)
     {
@@ -121,6 +175,8 @@ public class LoginInfoPromptController
                 loginInfoPromptController.setHiddenPasswordText(loginInfo.getPassword());
                 loginInfoPromptController.setCreateButtonText("Save");
             }
+
+            loginInfoPromptController.load();
         }
         catch (IOException e)
         {
@@ -128,6 +184,61 @@ public class LoginInfoPromptController
         }
 
         return root;
+    }
+
+    //endregion
+
+    private void setupIconButtons()
+    {
+        setupViewPasswordIconButton();
+    }
+    
+    private void setupViewPasswordIconButton()
+    {
+        // Remove text from button if any
+        if (viewPassword.getText() != null)
+        {
+            viewPassword.setText(null);
+        }
+
+        if (viewPassword.getTooltip() == null)
+        {
+            Tooltip viewPasswordToolTip = new Tooltip();
+            viewPasswordToolTip.setText("Toggle visibility of the login info");
+
+            viewPassword.setTooltip(viewPasswordToolTip);
+        }
+
+        if (!viewPassword.getStyleClass().contains("icon-button"))
+        {
+            viewPassword.getStyleClass().add("icon-button");
+        }
+
+        if (visibilityIcon == null)
+        {
+            visibilityIcon = new Region();
+            visibilityIcon.getStyleClass().add("visibility");
+        }
+
+        if (visibilityOffIcon == null)
+        {
+            visibilityOffIcon = new Region();
+            visibilityOffIcon.getStyleClass().add("visibility-off");
+        }
+    }
+
+    private void changeViewPasswordIcon(boolean visibility)
+    {
+        setupViewPasswordIconButton();
+
+        if (visibility)
+        {
+            viewPassword.setGraphic(visibilityIcon);
+        }
+        else
+        {
+            viewPassword.setGraphic(visibilityOffIcon);
+        }
     }
 
     private void clearFields()

@@ -56,6 +56,8 @@ public class Main extends Application
                 SystemConstants.DEFAULT_PATH));
         loginInfos.forEach(loginInfo -> mainController.addContent(loginInfo.getIdentifier(), LoginInfoCardController.createNewCard(dependencyInjector, loginInfo)));
 
+        mainController.load();
+
         Scene primaryScene = new Scene(root, 600, 600);
         primaryScene.getStylesheets().add(getClass().getClassLoader().getResource("stylesheet.css").toExternalForm());
 

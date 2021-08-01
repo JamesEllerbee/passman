@@ -8,7 +8,6 @@ import com.jamesellerbee.utilities.injection.Injector;
 import com.jamesellerbee.utilities.logging.SimpleLogger;
 import com.jamesellerbee.utilities.strings.StringUtility;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -21,25 +20,28 @@ import javafx.stage.Stage;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MainController
 {
-    private ILogger logger = new SimpleLogger(getClass().getName());
+    private final ILogger logger = new SimpleLogger(getClass().getName());
 
     private static final String VIEW = "View";
     private static final String HIDE = "Hide";
+    private static final String CLICK_TO_VIEW = "Select a card from the other panel to view login information.";
+    private static final String ADD_NEW = "Click \"Add New\" to create new login information.";
 
-    private IInjector dependencyInjector;
+    private final IInjector dependencyInjector;
     private ILoginInfoHandler loginInfoHandler;
     private String password;
     private boolean creatingOrEditingLogin = false;
-    private Map<String, Parent> loginInfoMap;
+    private final Map<String, Parent> loginInfoMap;
 
     private Region visibilityIcon;
     private Region visibilityOffIcon;
     private Region editIcon;
     private Region deleteIcon;
+
+    // region FXML Fields
 
     @FXML
     private Button edit;
@@ -61,17 +63,41 @@ public class MainController
     private Label selectedPassword;
     @FXML
     private VBox vboxContent;
+    @FXML
+    private Label viewInstruction;
 
+    // endregion
+
+    // region Constructors
+
+    /**
+     * Initializes a new instance of the MainController class.
+     */
     public MainController()
     {
         dependencyInjector = Injector.getInstance();
         loginInfoMap = new HashMap<>();
     }
 
+    // endregion
+
+    /**
+     * Perform any loading steps after controls are added.
+     */
+    public void load()
+    {
+        setControlsVisible(false);
+        setControlsEnabled(false);
+
+        setupIconButtons();
+        setViewInstructionText();
+    }
+
     public void addContent(String id, Parent root)
     {
         vboxContent.getChildren().addAll(root);
-        loginInfoMap.put(id ,root);
+        loginInfoMap.put(id, root);
+        setViewInstructionText();
     }
 
     public void updateContent(String id, Parent newCard)
@@ -81,9 +107,15 @@ public class MainController
         loginInfoMap.put(id, newCard);
     }
 
-    public void removeContent(Node root)
+    public void removeContent(String id)
     {
-        vboxContent.getChildren().remove(root);
+        Parent loginCard = loginInfoMap.get(id);
+        if (loginCard != null)
+        {
+            vboxContent.getChildren().remove(loginCard);
+            loginInfoMap.remove(id);
+            setViewInstructionText();
+        }
     }
 
     public void setSelected(LoginInfo loginInfo)
@@ -127,6 +159,7 @@ public class MainController
     {
         setupEditIconButton();
         setupDeleteIconButton();
+        setupViewPasswordIconButton();
     }
 
     private void setupDeleteIconButton()
@@ -184,7 +217,7 @@ public class MainController
         }
     }
 
-    private void changeToggleViewPasswordIcon(boolean visibility)
+    private void setupViewPasswordIconButton()
     {
         // Remove text from button if any
         if (toggleViewPassword.getText() != null)
@@ -216,6 +249,11 @@ public class MainController
             visibilityOffIcon = new Region();
             visibilityOffIcon.getStyleClass().add("visibility-off");
         }
+    }
+
+    private void changeToggleViewPasswordIcon(boolean visibility)
+    {
+        setupViewPasswordIconButton();
 
         if (visibility)
         {
@@ -243,31 +281,30 @@ public class MainController
         closeButton.setVisible(visible);
         edit.setVisible(visible);
         delete.setVisible(visible);
+
+        viewInstruction.setVisible(!visible);
     }
 
-    private void setControlsEnabled(boolean enabled)
+    private void setViewInstructionText()
     {
-        toggleViewPassword.setDisable(!enabled);
-        closeButton.setDisable(!enabled);
-        edit.setDisable(!enabled);
-        delete.setDisable(!enabled);
+        String currentText = viewInstruction.getText();
+
+        if (loginInfoMap.isEmpty() && !currentText.equals(ADD_NEW))
+        {
+            viewInstruction.setText(ADD_NEW);
+        }
+        else if (!currentText.equals(CLICK_TO_VIEW))
+        {
+            viewInstruction.setText(CLICK_TO_VIEW);
+        }
     }
 
     public void onAddNewMouseClicked(MouseEvent mouseEvent)
     {
         if (!creatingOrEditingLogin)
         {
-            Parent root = LoginInfoPromptController.createLoginPrompt();
-            if (root != null)
-            {
-                Stage stage = new Stage();
-                stage.setTitle(LoginInfoPromptController.TITLE_CREATE_NEW);
-                stage.setScene(new Scene(root, 600, 400));
-                stage.setOnCloseRequest(event -> setCreatingOrEditingLogin(false));
-                stage.show();
-
-                setCreatingOrEditingLogin(true);
-            }
+            showLoginPrompt(LoginInfoPromptController.TITLE_EDIT_EXISTING, LoginInfoPromptController.createLoginPrompt());
+            setCreatingOrEditingLogin(true);
         }
         else
         {
@@ -284,18 +321,8 @@ public class MainController
     {
         if (!creatingOrEditingLogin)
         {
-            Parent root = LoginInfoPromptController.createLoginPrompt(new LoginInfo(selectedIdentifier.getText(), selectedUsername.getText(), password));
-            if (root != null)
-            {
-                Stage stage = new Stage();
-                stage.setTitle(LoginInfoPromptController.TITLE_EDIT_EXISTING);
-                stage.setScene(new Scene(root, 600, 400));
-                stage.setOnCloseRequest(event -> setCreatingOrEditingLogin(false));
-                stage.setOnHidden(event -> setCreatingOrEditingLogin(false));
-                stage.show();
-
-                setCreatingOrEditingLogin(true);
-            }
+            showLoginPrompt(LoginInfoPromptController.TITLE_EDIT_EXISTING, LoginInfoPromptController.createLoginPrompt(new LoginInfo(selectedIdentifier.getText(), selectedUsername.getText(), password)));
+            setCreatingOrEditingLogin(true);
         }
     }
 
@@ -311,23 +338,38 @@ public class MainController
             boolean success = loginInfoHandler.remove(storedLoginToDelete);
             if (success)
             {
-                // Find child that matches the id
-                AtomicReference<Node> toDeleteAtomicReference = new AtomicReference<>();
-                vboxContent.getChildren().forEach(toDeleteAtomicReference::set);
-
-                if (toDeleteAtomicReference.get() != null)
-                {
-                    removeContent(toDeleteAtomicReference.get());
-
-                    setControlsVisible(false);
-                    setControlsEnabled(false);
-                }
+                removeContent(storedLoginToDelete.getIdentifier());
+                setControlsVisible(false);
+                setControlsEnabled(false);
             }
         }
         else
         {
             logger.error("Missing login info handler dependency.");
         }
+    }
+
+    private void showLoginPrompt(String title, Parent root)
+    {
+        if(root != null)
+        {
+            Scene loginPromptScene = new Scene(root, 600, 400);
+            loginPromptScene.getStylesheets().add(getClass().getClassLoader().getResource("stylesheet.css").toExternalForm());
+
+            Stage stage = new Stage();
+            stage.setTitle(title);
+            stage.setScene(loginPromptScene);
+            stage.setOnCloseRequest(event -> setCreatingOrEditingLogin(false));
+            stage.show();
+        }
+    }
+
+    private void setControlsEnabled(boolean enabled)
+    {
+        toggleViewPassword.setDisable(!enabled);
+        closeButton.setDisable(!enabled);
+        edit.setDisable(!enabled);
+        delete.setDisable(!enabled);
     }
 
     private ILoginInfoHandler getLoginInfoHandler()

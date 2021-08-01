@@ -42,6 +42,7 @@
                      </opaqueInsets></Button>
                   <Button fx:id="edit" accessibleHelp="Edit" accessibleRoleDescription="Edit the login information" accessibleText="Edit" layoutX="152.0" layoutY="203.0" mnemonicParsing="false" onMouseClicked="#onEditMouseClicked" text="Edit" visible="false" />
                   <Button fx:id="delete" layoutX="199.0" layoutY="203.0" mnemonicParsing="false" onMouseClicked="#onDeleteMouseClicked" text="Delete" visible="false" />
+                  <Label fx:id="viewInstruction" layoutX="23.0" layoutY="189.0" style="-fx-font-size: 14; -fx-text-fill: gray;" text="Select a card from the other panel to view login information." />
                </children></AnchorPane>
         </items>
       </SplitPane>
