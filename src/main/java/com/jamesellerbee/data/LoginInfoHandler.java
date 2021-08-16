@@ -1,6 +1,10 @@
 package com.jamesellerbee.data;
 
-import com.jamesellerbee.interfaces.*;
+import com.jamesellerbee.interfaces.IEncryptionEngine;
+import com.jamesellerbee.interfaces.IInjector;
+import com.jamesellerbee.interfaces.ILogger;
+import com.jamesellerbee.interfaces.ILoginInfoHandler;
+import com.jamesellerbee.interfaces.IPropertyProvider;
 import com.jamesellerbee.security.EncryptionEngine;
 import com.jamesellerbee.ui.controller.LoginInfoCardController;
 import com.jamesellerbee.ui.controller.MainController;
@@ -16,118 +20,129 @@ import java.io.File;
  */
 public class LoginInfoHandler implements ILoginInfoHandler
 {
-    private final ILogger logger = new SimpleLogger(getClass().getName());
+  private final ILogger logger = new SimpleLogger(getClass().getName());
 
-    private IInjector dependencyInjector;
-    private IEncryptionEngine encryptionEngine;
-    private IPropertyProvider propertyProvider;
+  private final IInjector dependencyInjector;
+  private IEncryptionEngine encryptionEngine;
+  private IPropertyProvider propertyProvider;
 
-    public LoginInfoHandler(IInjector dependencyInjector)
+  public LoginInfoHandler(IInjector dependencyInjector)
+  {
+    if (dependencyInjector == null)
     {
-        if (dependencyInjector == null)
-        {
-            logger.error("");
-            throw new IllegalArgumentException();
-        }
-        this.dependencyInjector = dependencyInjector;
+      logger.error("");
+      throw new IllegalArgumentException();
     }
 
-    @Override
-    public boolean store(LoginInfo loginInfo, boolean newContent)
+    this.dependencyInjector = dependencyInjector;
+  }
+
+  @Override
+  public boolean store(LoginInfo loginInfo, boolean newContent)
+  {
+    boolean result = false;
+
+    IEncryptionEngine encryptionEngine = getEncryptionEngine();
+    IPropertyProvider propertyProvider = getPropertyProvider();
+
+    if (encryptionEngine != null)
     {
-        boolean result = false;
+      String path = SystemConstants.DEFAULT_PATH;
+      if (propertyProvider != null)
+      {
+        path = propertyProvider.get(PropertyConstants.PATH, SystemConstants.DEFAULT_PATH);
 
-        IEncryptionEngine encryptionEngine = getEncryptionEngine();
-        IPropertyProvider propertyProvider = getPropertyProvider();
+        createDirectory(path);
+      }
 
-        if (encryptionEngine != null)
+      String fileName = loginInfo.getIdentifier() + EncryptionEngine.FILE_NAME_SEPARATOR + loginInfo.getUsername();
+
+      encryptionEngine.encrypt(loginInfo.getPassword(), path + SystemConstants.SYSTEM_FILE_SEPARATOR + fileName);
+
+      File newStoredInfoFile = new File(path + SystemConstants.SYSTEM_FILE_SEPARATOR + fileName);
+
+      result = newStoredInfoFile.exists();
+      if (result)
+      {
+        logger.info("Stored info created successfully.");
+
+        MainController mainController = dependencyInjector.resolve(MainController.class);
+        if (mainController != null)
         {
-            String path = SystemConstants.DEFAULT_PATH;
-            if (propertyProvider != null)
-            {
-                path = propertyProvider.get(PropertyConstants.PATH, SystemConstants.DEFAULT_PATH);
-            }
-
-            String fileName = loginInfo.getIdentifier() + EncryptionEngine.FILE_NAME_SEPARATOR + loginInfo.getUsername();
-
-            encryptionEngine.encrypt(loginInfo.getPassword(), path + SystemConstants.SYSTEM_FILE_SEPARATOR + fileName);
-
-            File newStoredInfoFile = new File(path + SystemConstants.SYSTEM_FILE_SEPARATOR + fileName);
-
-            result = newStoredInfoFile.exists();
-            if (result)
-            {
-                logger.info("Stored info created successfully.");
-
-
-                MainController mainController = dependencyInjector.resolve(MainController.class);
-                if (mainController != null)
-                {
-                    if(newContent)
-                    {
-                        mainController.addContent(loginInfo.getIdentifier(), LoginInfoCardController.createNewCard(dependencyInjector, loginInfo));
-                    }
-                    else
-                    {
-                        mainController.updateContent(loginInfo.getIdentifier(), LoginInfoCardController.createNewCard(dependencyInjector, loginInfo));
-                        mainController.setSelected(loginInfo);
-                    }
-                }
-            }
+          if (newContent)
+          {
+            mainController.addContent(loginInfo.getIdentifier(), LoginInfoCardController.createNewCard(dependencyInjector, loginInfo));
+          }
+          else
+          {
+            mainController.updateContent(loginInfo.getIdentifier(), LoginInfoCardController.createNewCard(dependencyInjector, loginInfo));
+            mainController.setSelected(loginInfo);
+          }
         }
-        else
-        {
-            logger.error("Missing encryption engine dependency.");
-        }
-
-        return result;
+      }
+    }
+    else
+    {
+      logger.error("Missing encryption engine dependency.");
     }
 
-    @Override
-    public boolean remove(LoginInfo loginInfo)
+    return result;
+  }
+
+  @Override
+  public boolean remove(LoginInfo loginInfo)
+  {
+    boolean result = false;
+
+    IPropertyProvider propertyProvider = getPropertyProvider();
+
+    if (propertyProvider != null)
     {
-        boolean result = false;
-
-        IPropertyProvider propertyProvider = getPropertyProvider();
-
-        if (propertyProvider != null)
+      String path = propertyProvider.get(PropertyConstants.PATH, SystemConstants.DEFAULT_PATH);
+      File toRemove = new File(path +
+          SystemConstants.SYSTEM_FILE_SEPARATOR +
+          loginInfo.getIdentifier() +
+          EncryptionEngine.FILE_NAME_SEPARATOR +
+          loginInfo.getUsername());
+      if (toRemove.exists())
+      {
+        result = toRemove.delete();
+        if (!result)
         {
-            String path = propertyProvider.get(PropertyConstants.PATH, SystemConstants.DEFAULT_PATH);
-            File toRemove = new File(path +
-                                     SystemConstants.SYSTEM_FILE_SEPARATOR +
-                                     loginInfo.getIdentifier() +
-                                     EncryptionEngine.FILE_NAME_SEPARATOR +
-                                     loginInfo.getUsername());
-            if (toRemove.exists())
-            {
-                result = toRemove.delete();
-                if (!result)
-                {
-                    logger.warn("Could not delete stored login.");
-                }
-            }
+          logger.warn("Could not delete stored login.");
         }
-
-        return result;
+      }
     }
 
-    private IEncryptionEngine getEncryptionEngine()
-    {
-        if (encryptionEngine == null)
-        {
-            encryptionEngine = dependencyInjector.resolve(IEncryptionEngine.class);
-        }
+    return result;
+  }
 
-        return encryptionEngine;
+  private void createDirectory(String path)
+  {
+    File dir = new File(path);
+    if (!dir.exists())
+    {
+      dir.mkdir();
+    }
+  }
+
+  private IEncryptionEngine getEncryptionEngine()
+  {
+    if (encryptionEngine == null)
+    {
+      encryptionEngine = dependencyInjector.resolve(IEncryptionEngine.class);
     }
 
-    private IPropertyProvider getPropertyProvider()
-    {
-        if (propertyProvider == null)
-        {
-            propertyProvider = dependencyInjector.resolve(IPropertyProvider.class);
-        }
+    return encryptionEngine;
+  }
 
-        return propertyProvider;
+  private IPropertyProvider getPropertyProvider()
+  {
+    if (propertyProvider == null)
+    {
+      propertyProvider = dependencyInjector.resolve(IPropertyProvider.class);
     }
+
+    return propertyProvider;
+  }
 }

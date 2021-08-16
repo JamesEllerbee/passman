@@ -31,9 +31,12 @@ public class LoginInfoProvider implements ILoginInfoProvider
     {
         if (dependencyInjector == null)
         {
-            logger.error("");
+            logger.error("Dependency injector cannot be null.");
             throw new IllegalArgumentException();
         }
+
+
+
         this.dependencyInjector = dependencyInjector;
     }
 

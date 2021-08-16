@@ -145,6 +145,7 @@ public class EncryptionEngine implements IEncryptionEngine
         catch (IOException e)
         {
             logger.error("There was an issue with the path.");
+            logger.debug("Exception: " + e.getMessage());
         }
     }
 
