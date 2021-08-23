@@ -30,7 +30,7 @@
             </AnchorPane>
           <AnchorPane SplitPane.resizableWithParent="false">
                <children>
-                  <GridPane alignment="TOP_CENTER" prefHeight="398.0" prefWidth="417.0" AnchorPane.bottomAnchor="0.0">
+                  <GridPane alignment="CENTER">
                     <columnConstraints>
                       <ColumnConstraints maxWidth="155.0" minWidth="10.0" prefWidth="155.0" />
                         <ColumnConstraints maxWidth="180.0" minWidth="0.0" prefWidth="142.0" />
@@ -61,9 +61,10 @@
                         <Button fx:id="edit" accessibleHelp="Edit" accessibleRoleDescription="Edit the login information" accessibleText="Edit" alignment="CENTER" mnemonicParsing="false" onMouseClicked="#onEditMouseClicked" text="Edit" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
                         <Label fx:id="viewInstruction" alignment="CENTER" prefWidth="474.0" style="-fx-text-fill: gray;" text="Select a card from the other panel to view login information." visible="false" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.rowSpan="2147483647" GridPane.valignment="CENTER" />
                         <Button fx:id="addNew" alignment="TOP_LEFT" mnemonicParsing="false" onMouseClicked="#onAddNewMouseClicked" text="Add New" textAlignment="CENTER" GridPane.halignment="LEFT" GridPane.valignment="TOP" />
-                        <Button fx:id="copyPassword" disable="true" mnemonicParsing="false" text="Copy" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
+                        <Button fx:id="copyPassword" disable="true" mnemonicParsing="false" onMouseClicked="#onCopyButtonClicked" text="Copy" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />
                      </children>
                   </GridPane>
+                  <Label fx:id="infoLabel" alignment="BOTTOM_CENTER" layoutX="167.0" layoutY="367.0" text="Application text" AnchorPane.bottomAnchor="14.0" AnchorPane.topAnchor="367.0" />
                </children></AnchorPane>
         </items>
       </SplitPane>
