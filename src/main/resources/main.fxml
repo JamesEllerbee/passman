@@ -57,8 +57,8 @@
                               <Insets />
                            </opaqueInsets>
                         </Button>
-                        <Button fx:id="delete" mnemonicParsing="false" onMouseClicked="#onDeleteMouseClicked" text="Delete" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
-                        <Button fx:id="edit" accessibleHelp="Edit" accessibleRoleDescription="Edit the login information" accessibleText="Edit" alignment="CENTER" mnemonicParsing="false" onMouseClicked="#onEditMouseClicked" text="Edit" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
+                        <Button fx:id="deleteLoginInfo" mnemonicParsing="false" onMouseClicked="#onDeleteMouseClicked" text="Delete" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" />
+                        <Button fx:id="editLoginInfo" accessibleHelp="Edit" accessibleRoleDescription="Edit the login information" accessibleText="Edit" alignment="CENTER" mnemonicParsing="false" onMouseClicked="#onEditMouseClicked" text="Edit" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER" />
                         <Label fx:id="viewInstruction" alignment="CENTER" prefWidth="474.0" style="-fx-text-fill: gray;" text="Select a card from the other panel to view login information." visible="false" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.rowSpan="2147483647" GridPane.valignment="CENTER" />
                         <Button fx:id="addNew" alignment="TOP_LEFT" mnemonicParsing="false" onMouseClicked="#onAddNewMouseClicked" text="Add New" textAlignment="CENTER" GridPane.halignment="LEFT" GridPane.valignment="TOP" />
                         <Button fx:id="copyPassword" disable="true" mnemonicParsing="false" onMouseClicked="#onCopyButtonClicked" text="Copy" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER" />

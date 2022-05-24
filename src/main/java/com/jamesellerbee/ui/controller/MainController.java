@@ -20,7 +20,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import javax.sound.sampled.Clip;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,13 +49,14 @@ public class MainController
     private Region visibilityOffIcon;
     private Region editIcon;
     private Region deleteIcon;
+    private Region copyIcon;
 
     // region FXML Fields
 
     @FXML
-    private Button edit;
+    private Button editLoginInfo;
     @FXML
-    private Button delete;
+    private Button deleteLoginInfo;
     @FXML
     public Button closeButton;
     @FXML
@@ -268,84 +268,72 @@ public class MainController
         setupEditIconButton();
         setupDeleteIconButton();
         setupViewPasswordIconButton();
+        setupCopyPasswordIconButton();
+    }
+
+    private void setupIconButton(Button button, Region region)
+    {
+        if (button.getText() != null)
+        {
+            button.setText(null);
+        }
+
+        if (!button.getStyleClass().contains("icon-button"))
+        {
+            button.getStyleClass().add("icon-button");
+        }
+
+        button.setGraphic(region);
+    }
+
+    private void setupTooltip(Button button, String text)
+    {
+        if(button.getTooltip() == null)
+        {
+            Tooltip copyToolTip = new Tooltip();
+            copyToolTip.setText(text);
+            button.setTooltip(copyToolTip);
+        }
+    }
+
+    private void setupCopyPasswordIconButton()
+    {
+        if(copyIcon == null)
+        {
+            copyIcon = new Region();
+            copyIcon.getStyleClass().add("copy");
+        }
+
+        setupIconButton(copyPassword, copyIcon);
+        setupTooltip(copyPassword, "Copy password to clipboard");
     }
 
     private void setupDeleteIconButton()
     {
-        if (delete.getText() != null)
-        {
-            delete.setText(null);
-        }
-
-        if (delete.getTooltip() == null)
-        {
-            Tooltip deleteToolTip = new Tooltip();
-            deleteToolTip.setText("Delete selected login info");
-            delete.setTooltip(deleteToolTip);
-        }
-
         if (deleteIcon == null)
         {
             deleteIcon = new Region();
             deleteIcon.getStyleClass().add("delete");
         }
 
-        if (!delete.getStyleClass().contains("icon-button"))
-        {
-            delete.getStyleClass().add("icon-button");
-            delete.setGraphic(deleteIcon);
-        }
+        setupIconButton(deleteLoginInfo, deleteIcon);
+        setupTooltip(deleteLoginInfo, "Delete selected login info");
     }
 
     private void setupEditIconButton()
     {
-        // Remove text from edit button if any
-        if (edit.getText() != null)
-        {
-            edit.setText(null);
-        }
-
-        if (edit.getTooltip() == null)
-        {
-            Tooltip editToolTip = new Tooltip();
-            editToolTip.setText("Edit selected login info");
-            edit.setTooltip(editToolTip);
-        }
-
         if (editIcon == null)
         {
             editIcon = new Region();
             editIcon.getStyleClass().add("edit");
         }
 
-        if (!edit.getStyleClass().contains("icon-button"))
-        {
-            edit.getStyleClass().add("icon-button");
-            edit.setGraphic(editIcon);
-        }
+        setupIconButton(editLoginInfo, editIcon);
+        setupTooltip(editLoginInfo, "Edit selected login info");
     }
 
     private void setupViewPasswordIconButton()
     {
-        // Remove text from button if any
-        if (toggleViewPassword.getText() != null)
-        {
-            toggleViewPassword.setText(null);
-        }
-
-        if (toggleViewPassword.getTooltip() == null)
-        {
-            Tooltip toggleViewPasswordToolTip = new Tooltip();
-            toggleViewPasswordToolTip.setText("Toggle visibility of the login info");
-
-            toggleViewPassword.setTooltip(toggleViewPasswordToolTip);
-        }
-
-        if (!toggleViewPassword.getStyleClass().contains("icon-button"))
-        {
-            toggleViewPassword.getStyleClass().add("icon-button");
-        }
-
         if (visibilityIcon == null)
         {
             visibilityIcon = new Region();
@@ -357,12 +345,13 @@ public class MainController
             visibilityOffIcon = new Region();
             visibilityOffIcon.getStyleClass().add("visibility-off");
         }
+
+        setupIconButton(toggleViewPassword, visibilityOffIcon);
+        setupTooltip(toggleViewPassword, "Toggle visibility of the login info");
     }
 
     private void changeToggleViewPasswordIcon(boolean visibility)
     {
-        setupViewPasswordIconButton();
-
         if (visibility)
         {
             toggleViewPassword.setGraphic(visibilityIcon);
@@ -386,8 +375,8 @@ public class MainController
         selectedPassword.setVisible(visible);
         toggleViewPassword.setVisible(visible);
         closeButton.setVisible(visible);
-        edit.setVisible(visible);
-        delete.setVisible(visible);
+        editLoginInfo.setVisible(visible);
+        deleteLoginInfo.setVisible(visible);
         copyPassword.setVisible(visible);
         viewInstruction.setVisible(!visible);
     }
@@ -424,8 +413,8 @@ public class MainController
     {
         toggleViewPassword.setDisable(!enabled);
         closeButton.setDisable(!enabled);
-        edit.setDisable(!enabled);
-        delete.setDisable(!enabled);
+        editLoginInfo.setDisable(!enabled);
+        deleteLoginInfo.setDisable(!enabled);
         copyPassword.setDisable(!enabled);
     }
 

@@ -26,6 +26,7 @@ public class DependencyLoader
         }
 
         this.dependencyInjector = dependencyInjector;
+
         // Immediately load a property provider so it is available when loading other dependencies.
         dependencyInjector.register(IPropertyProvider.class, new PropertyProvider());
     }

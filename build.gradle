@@ -25,3 +25,10 @@ jar {
             'main-class' : 'com.jamesellerbee.Main'
     }
 }
+
+task 'copyProperties' (type: Copy) {
+    from file("$projectDir/passman.properties")
+    into file("$buildDir/libs")
+}
+
+jar.finalizedBy('copyProperties')
